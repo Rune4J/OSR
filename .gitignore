@@ -22,3 +22,23 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Character  Saves
+characters/*
+
+# Logs
+Data/logs/*
+
+# Clans
+Data/clan/*
+
+# Project Files
+*.xml
+*.iml
+.classpath
+.project
+
+# Not sure / Legacy
+Data/Server/starters.var
+bin/*
+/bin/
