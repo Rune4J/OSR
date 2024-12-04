@@ -1,0 +1,1 @@
+package ethos.rune4j.entity.skill;

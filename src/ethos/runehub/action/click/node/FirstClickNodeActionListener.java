@@ -21,6 +21,7 @@ public class FirstClickNodeActionListener {
                 else
                     return null;
             case 32535:
+//                final Point point = RunehubConstants.HOME_TELEPORT_AREA.getAllPoints().get(Skill.SKILL_RANDOM.nextInt(RunehubConstants.HOME_TELEPORT_AREA.getAllPoints().size()));
                 return new FirstClickPortalAction(player, nodeId, nodeX, nodeY, nodeZ, 3174, 9900, 0);
             case 733:
                 return new FirstClickWebAction(player, nodeId, nodeX, nodeY);
@@ -93,6 +94,7 @@ public class FirstClickNodeActionListener {
             case 23972:
             case 4108:
             case 1560:
+            case 1558:
             case 2108:
             case 2111:
             case 6106:
@@ -128,6 +130,9 @@ public class FirstClickNodeActionListener {
             case 23731:
             case 16671:
                 return new LadderAction(player, nodeId, nodeX, nodeY, nodeZ);
+//            case 16902:
+//            case 16903:
+//                return new FirstClickHallofHeroesDoorAction(player, nodeX, nodeY);
             case 11807:
             case 11799:
                 return new FirstClickHallofHeroesStairsAction(player, nodeId, nodeX, nodeY, nodeZ);
@@ -196,41 +201,42 @@ public class FirstClickNodeActionListener {
             case 10661:
             case 6945:
                 return new OpenBankAction(player, nodeId, nodeX, nodeY);
-            case 8550:
-            case 8551:
-            case 7847:
-            case 8150:
-            case 8554:
-            case 8552:
-            case 8556:
-            case 8555:
-            case 8553:
-            case 8557:
-            case 7849:
-            case 7848:
-            case 7850:
-            case 8152:
-            case 8151:
-            case 8153:
-            case 8175:
-            case 8176:
-            case 8173:
-            case 8174:
-            case 7577:
-            case 7578:
-            case 7580:
-            case 7579:
-            case 8391:
-            case 8390:
-            case 8389:
-            case 8388:
-            case 19147:
-            case 7962:
-            case 7965:
-            case 7963:
-            case 7964:
-            case 26579:
-                return new FirstClickFarmingPatchAction(player, nodeId, nodeX, nodeY);
+//            case 8550:
+//            case 8551:
+//            case 7847:
+//            case 8150:
+//            case 8554:
+//            case 8552:
+//            case 8556:
+//            case 8555:
+//            case 8553:
+//            case 8557:
+//            case 7849:
+//            case 7848:
+//            case 7850:
+//            case 8152:
+//            case 8151:
+//            case 8153:
+//            case 8175:
+//            case 8176:
+//            case 8173:
+//            case 8174:
+//            case 7577:
+//            case 7578:
+//            case 7580:
+//            case 7579:
+//            case 8391:
+//            case 8390:
+//            case 8389:
+//            case 8388:
+//            case 19147:
+//            case 7962:
+//            case 7965:
+//            case 7963:
+//            case 7964:
+//            case 26579:
+//
+//                return new FirstClickFarmingPatchAction(player, nodeId, nodeX, nodeY);
             case 19206:
             case 19207:
             case 17100:

@@ -2,6 +2,7 @@ package ethos.runehub.skill.gathering.farming.action;
 
 import com.google.common.base.Preconditions;
 import ethos.model.players.Player;
+import ethos.rune4j.model.dto.skill.farming.PatchContext;
 import ethos.runehub.RunehubUtils;
 import ethos.runehub.entity.item.ItemInteractionContext;
 import ethos.runehub.skill.SkillAction;
@@ -27,8 +28,8 @@ public class ApplyCompostAction extends SkillAction {
 
     @Override
     protected void validateItemRequirements() {
-        Preconditions.checkArgument((config.getCrop() == 0 && config.getStage() == 3),"You must clear this patch before you can treat it with compost.");
-        Preconditions.checkArgument(config.getCompost() == 0,"This patch has already been treated with compost.");
+        Preconditions.checkArgument((patchContext.getOccupiedById() == 0 && patchContext.getCurrentGrowthStage() == 3),"You must clear this patch before you can treat it with compost.");
+        Preconditions.checkArgument(patchContext.getCompostId() == 0,"This patch has already been treated with compost.");
         if (interactionContext.getUsedId() == Farming.BOTTOMLESS_COMPOST) {
             Preconditions.checkArgument(this.getActor().getContext().getPlayerSaveData().getBottomlessCompostBucketCharges() > 0, "You've run out of compost.");
         }
@@ -55,25 +56,17 @@ public class ApplyCompostAction extends SkillAction {
     @Override
     public void onTick() {
         if (interactionContext.getUsedId() == Farming.COMPOST) {
-            this.getActor().getPA().addSkillXP(18,SkillDictionary.Skill.FARMING.getId(), true);
-            this.getActor().getItems().deleteItem(interactionContext.getUsedId(),1);
-            this.getActor().getItems().addOrDropItem(1925,1);
-            config.setCompost(interactionContext.getUsedId());
+            applyCompost();
         } else if(interactionContext.getUsedId() == Farming.SUPERCOMPOST) {
-            this.getActor().getPA().addSkillXP(26,SkillDictionary.Skill.FARMING.getId(), true);
-            this.getActor().getItems().deleteItem(interactionContext.getUsedId(),1);
-            this.getActor().getItems().addOrDropItem(1925,1);
-            config.setCompost(interactionContext.getUsedId());
+            applyCompost();
         } else if(interactionContext.getUsedId() == Farming.ULTRACOMPOST) {
-            this.getActor().getPA().addSkillXP(36,SkillDictionary.Skill.FARMING.getId(), true);
-            this.getActor().getItems().deleteItem(interactionContext.getUsedId(),1);
-            this.getActor().getItems().addOrDropItem(1925,1);
-            config.setCompost(interactionContext.getUsedId());
+            applyCompost();
         } else if(interactionContext.getUsedId() == Farming.BOTTOMLESS_COMPOST) {
             this.getActor().getPA().addSkillXP(18,SkillDictionary.Skill.FARMING.getId(), true);
             this.getActor().getContext().getPlayerSaveData().setBottomlessCompostBucketCharges(this.getActor().getContext().getPlayerSaveData().getBottomlessCompostBucketCharges() - 1);
-            config.setCompost(this.getActor().getContext().getPlayerSaveData().getBottomlessCompostBucketType());
+            patchContext.setCompostId(this.getActor().getContext().getPlayerSaveData().getBottomlessCompostBucketType());
         }
+        this.getActor().getSkillController().getFarming().savePatchContext(patchContext);
         this.stop();
     }
 
@@ -101,12 +94,29 @@ public class ApplyCompostAction extends SkillAction {
 //            Preconditions.checkArgument((config.getCrop() == 0 && config.getStage() == 3),"You must clear this patch before you can treat it with compost.");
     }
 
-    public ApplyCompostAction(Player player, ItemInteractionContext interactionContext) {
+    private void applyCompost() {
+        int xpForComposting = 0;
+        if (interactionContext.getUsedId() == Farming.COMPOST) {
+            xpForComposting = 18;
+        } else if(interactionContext.getUsedId() == Farming.SUPERCOMPOST) {
+            xpForComposting = 26;
+        } else if(interactionContext.getUsedId() == Farming.ULTRACOMPOST) {
+            xpForComposting = 36;
+        }
+
+        this.getActor().getPA().addSkillXP(xpForComposting,SkillDictionary.Skill.FARMING.getId(), true);
+        this.getActor().getItems().deleteItem(interactionContext.getUsedId(),1);
+        this.getActor().getItems().addOrDropItem(1925,1);
+
+        patchContext.setCompostId(interactionContext.getUsedId());
+    }
+
+    public ApplyCompostAction(Player player, ItemInteractionContext interactionContext, PatchContext patchContext) {
         super(player,SkillDictionary.Skill.FARMING.getId(),6);
         this.interactionContext = interactionContext;
-        this.config = player.getSkillController().getFarming().getConfig(interactionContext.getUsedWithId(), RunehubUtils.getRegionId(interactionContext.getX(), interactionContext.getY())).orElse(null);
+        this.patchContext = patchContext;
     }
 
     private final ItemInteractionContext interactionContext;
-    private final FarmingConfig config;
+    private final PatchContext patchContext;
 }

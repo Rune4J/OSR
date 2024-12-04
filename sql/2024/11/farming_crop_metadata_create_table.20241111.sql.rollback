@@ -1,0 +1,5 @@
+-- drop table crop_metadata if it exists
+DROP TABLE IF EXISTS farming_crop_metadata;
+
+-- drop index
+DROP INDEX IF EXISTS crop_metadata_seed_id_idx;

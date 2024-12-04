@@ -1,0 +1,1 @@
+drop table if exists farming_patch_state;

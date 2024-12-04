@@ -57,11 +57,11 @@ public class Ship {
 //    }
 
     private void onSuccessfulVoyage() {
-        this.setStatus(Ship.Status.RETURN_SUCCESS.ordinal());
+        this.setStatus(Status.RETURN_SUCCESS.ordinal());
     }
 
     private void onFailedVoyage() {
-        this.setStatus(Ship.Status.RETURN_FAILED.ordinal());
+        this.setStatus(Status.RETURN_FAILED.ordinal());
     }
 
     public String getSuccessRatePrint(float value) {

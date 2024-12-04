@@ -1,0 +1,1 @@
+DELETE FROM farming_crop_metadata WHERE seed_id IN (5291, 5292, 5293, 5294, 5295, 5296, 5297, 5298, 5299, 5300, 5301, 5302, 5303, 5304);

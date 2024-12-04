@@ -1,0 +1,5 @@
+drop table if exists farming_player_patch_state;
+
+drop index if exists player_farming_variables_player_id_idx;
+drop index if exists player_farming_variables_region_id_idx;
+drop index if exists player_farming_variables_patch_id_idx;

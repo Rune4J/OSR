@@ -1,0 +1,2 @@
+-- Delete all of these records
+DELETE FROM farming_crop_metadata WHERE seed_id IN (5318, 5319, 5324, 5322, 5320, 5323, 5321);

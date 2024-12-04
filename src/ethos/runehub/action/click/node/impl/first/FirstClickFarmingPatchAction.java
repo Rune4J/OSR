@@ -25,25 +25,25 @@ public class FirstClickFarmingPatchAction extends ClickNodeAction {
 
     @Override
     protected void onTick() {
-        this.getConfig().ifPresent(config -> {
-            System.out.println("Crop: " + config.getCrop() + " Cycle: " + config.getStage());
-            if (config.getCrop() == 0 && config.getStage() < 3) {
-                System.out.println("Raking patch");
-                this.getActor().getSkillController().getFarming().train(new RakePatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
-            } else if (config.diseased() && config.watered()) {
-                System.out.println("Clearing patch");
-                this.getActor().getSkillController().getFarming().train(new ClearPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
-            } else if (config.getCrop() != 0 && config.getStage() + 1 >= CropDAO.getInstance().read(config.getCrop()).getGrowthCycles() && config.getType() == PatchType.ALLOTMENT.ordinal()) {
-                this.getActor().getSkillController().getFarming().train(new HarvestAllotmentPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
-            } else if (config.getCrop() != 0 && config.getStage() + 1 >= CropDAO.getInstance().read(config.getCrop()).getGrowthCycles() && config.getType() == PatchType.HERB.ordinal()) {
-                this.getActor().getSkillController().getFarming().train(new HarvestHerbPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
-            } else if (config.getCrop() != 0 && config.diseased()) {
-                System.out.println("Curing patch");
-                this.getActor().getSkillController().getFarming().train(new ApplyPlantCureAction(this.getActor(), new ItemInteractionContext(this.getNodeX(), this.getNodeY(), 0, 6036, this.getNodeId(), 1, 1)));
-            } else {
-                System.out.println("Other");
-            }
-        });
+//        this.getConfig().ifPresent(config -> {
+//            System.out.println("Crop: " + config.getCrop() + " Cycle: " + config.getStage());
+//            if (config.getCrop() == 0 && config.getStage() < 3) {
+//                System.out.println("Raking patch");
+//                this.getActor().getSkillController().getFarming().train(new RakePatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
+//            } else if (config.diseased() && config.watered()) {
+//                System.out.println("Clearing patch");
+//                this.getActor().getSkillController().getFarming().train(new ClearPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
+//            } else if (config.getCrop() != 0 && config.getStage() + 1 >= CropDAO.getInstance().read(config.getCrop()).getGrowthCycles() && config.getType() == PatchType.ALLOTMENT.ordinal()) {
+//                this.getActor().getSkillController().getFarming().train(new HarvestAllotmentPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
+//            } else if (config.getCrop() != 0 && config.getStage() + 1 >= CropDAO.getInstance().read(config.getCrop()).getGrowthCycles() && config.getType() == PatchType.HERB.ordinal()) {
+//                this.getActor().getSkillController().getFarming().train(new HarvestHerbPatchAction(this.getActor(), config, this.getNodeId(), this.getNodeX(), this.getNodeY()));
+//            } else if (config.getCrop() != 0 && config.diseased()) {
+//                System.out.println("Curing patch");
+//                this.getActor().getSkillController().getFarming().train(new ApplyPlantCureAction(this.getActor(), new ItemInteractionContext(this.getNodeX(), this.getNodeY(), 0, 6036, this.getNodeId(), 1, 1)));
+//            } else {
+//                System.out.println("Other");
+//            }
+//        });
         this.stop();
     }
 
@@ -75,7 +75,17 @@ public class FirstClickFarmingPatchAction extends ClickNodeAction {
 //                return Optional.of(this.getActor().getContext().getPlayerSaveData().farmingConfig().get(regionId).stream()
 //                        .filter(config -> config.getPatch() == 24).findAny().orElseThrow(() -> new IllegalArgumentException("No Such Farm")));
 //        }
-        return this.getActor().getSkillController().getFarming().getConfig(this.getNodeId(),regionId);
+//         this.getActor().getSkillController().getFarming().getConfig(this.getNodeId(),regionId).ifPresent(save -> {
+//             FarmingConfig config = new FarmingConfig(
+//                 save.getStage(),
+//                     save.getPatchGroupId(),
+//                     save.isWatered(),
+//                        save.isDiseased(),
+//
+//             );
+//         });
+//        return this.getActor().getSkillController().getFarming().getConfig(this.getNodeId(),regionId);
+        return Optional.empty();
     }
 
     public FirstClickFarmingPatchAction(Player attachment, int nodeId, int nodeX, int nodeY) {

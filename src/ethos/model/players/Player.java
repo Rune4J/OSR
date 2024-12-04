@@ -1950,10 +1950,10 @@ public class Player extends Entity implements PlayerCharacterEntity {
             System.out.println("First farm tick is in " + TimeUtils.getDurationString(TimeUtils.getDurationBetween(System.currentTimeMillis(), FixedScheduledEventController.getInstance().getNextCycle(FixedScheduledEventController.getInstance().getFixedScheduleEvents()[10]).toInstant().toEpochMilli()).toMillis()));
             this.initializeDailyContent();
             getPA().showInterface(54000);
-            this.getAttributes().getFarmTickExecutorService().scheduleAtFixedRate(() ->
-                            new FarmTick(this),
-                    TimeUtils.getDurationBetween(System.currentTimeMillis(), FixedScheduledEventController.getInstance().getNextCycle(FixedScheduledEventController.getInstance().getFixedScheduleEvents()[10]).toInstant().toEpochMilli()).toMillis(),
-                    Duration.ofMinutes(5).toMillis(), TimeUnit.MILLISECONDS);
+//            this.getAttributes().getFarmTickExecutorService().scheduleAtFixedRate(() ->
+//                            new FarmTick(this),
+//                    TimeUtils.getDurationBetween(System.currentTimeMillis(), FixedScheduledEventController.getInstance().getNextCycle(FixedScheduledEventController.getInstance().getFixedScheduleEvents()[10]).toInstant().toEpochMilli()).toMillis(),
+//                    Duration.ofMinutes(5).toMillis(), TimeUnit.MILLISECONDS);
             WorldSettingsController.getInstance().initializeTimers(this);
             sendMessage("^Membership You have $" + MembershipController.getInstance().getDaysOfMembershipRemainingAsString(context) + " days of membership remaining.");
 //            Membership.checkDate(this);
@@ -2713,7 +2713,7 @@ public class Player extends Entity implements PlayerCharacterEntity {
     }
 
     private void depleteEnergy() {
-        skillController.addXP(SkillDictionary.Skill.AGILITY.getId(), 5);
+//        skillController.addXP(SkillDictionary.Skill.AGILITY.getId(), 5);
         runningDistanceTravelled = 0;
         runEnergy -= this.getEnergyDepletedPerTick();
         playerAssistant.sendFrame126(this.getRunEnergyPercentString(), 149);
@@ -6808,10 +6808,6 @@ public class Player extends Entity implements PlayerCharacterEntity {
 
     public SkillController getSkillController() {
         return skillController;
-    }
-
-    public PlayerFarmingSave getFarmingSave() {
-        return PlayerFarmingSaveDAO.getInstance().read(this.getId());
     }
 
     private final SkillController skillController;// = new SkillController(this);

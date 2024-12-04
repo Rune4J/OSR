@@ -1,13 +1,11 @@
 package ethos.runehub.event;
 
-import ethos.runehub.TimeUtils;
-import ethos.runehub.event.chest.PromotionalChestEventImpl;
 import ethos.runehub.event.dnd.*;
-import ethos.runehub.event.mob.MobAggressionEvent;
 import ethos.runehub.event.shop.impl.GeneralStoreRestockEvent;
 import ethos.runehub.event.shop.impl.SpecialtyShopRestockEvent;
 import ethos.runehub.event.skill.cooking.BrewingCycleEvent;
 import ethos.runehub.event.skill.farming.*;
+import ethos.runehub.skill.gathering.farming.action.RegrowCycleEvent;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -89,7 +87,7 @@ public class FixedScheduledEventController {
                 new FlowerPatchGrowthCycleEvent(),
                 new WeedGrowthCycleEvent(),
                 new HerbPatchGrowthCycleEvent(),
-                new HopsPatchGrowthCycleEvent(),
+//                new HopsPatchGrowthCycleEvent(),
                 new TreePatchGrowthCycleEvent(),
                 new BushPatchGrowthCycleEvent(),
                 new BrewingCycleEvent()

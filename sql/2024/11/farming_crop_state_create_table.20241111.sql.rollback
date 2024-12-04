@@ -1,0 +1,6 @@
+-- drop table crop_state if it exists
+DROP TABLE IF EXISTS farming_crop_state;
+
+-- drop index
+DROP INDEX IF EXISTS crop_state_seed_id_idx;
+DROP INDEX IF EXISTS crop_state_crop_index_idx;

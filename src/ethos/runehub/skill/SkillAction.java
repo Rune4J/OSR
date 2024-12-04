@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 public abstract class SkillAction extends Event<Player> {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SkillAction.class.getName());
+
     protected abstract void onActionStart();
 
     protected abstract void onActionStop();
@@ -45,7 +47,7 @@ public abstract class SkillAction extends Event<Player> {
             this.stop();
             this.getActor().getPA().closeAllWindows();
             this.getActor().sendMessage(e.getMessage());
-
+            logger.error("Error in SkillAction: {}", e.getMessage());
         }
     }
 

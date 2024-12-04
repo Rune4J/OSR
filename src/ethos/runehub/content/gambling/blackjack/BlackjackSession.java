@@ -1,10 +1,8 @@
 package ethos.runehub.content.gambling.blackjack;
 
 import com.google.common.base.Preconditions;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
 import ethos.event.Event;
 import ethos.model.players.Player;
-import ethos.model.players.PlayerHandler;
 import ethos.runehub.TimeUtils;
 import ethos.runehub.content.gambling.cards.Card;
 import ethos.runehub.content.gambling.cards.Rank;
@@ -15,7 +13,7 @@ import ethos.util.PreconditionUtils;
 import org.runehub.api.util.IDManager;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class BlackjackSession extends Event<Blackjack> {

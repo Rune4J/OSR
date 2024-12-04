@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 
 public class SkillController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SkillController.class.getName());
+
     public int getTotalLevel() {
         return Arrays.stream(this.getPlayer().playerXP).map(player::getLevelForXP).sum();
     }
@@ -42,6 +44,7 @@ public class SkillController {
         final int startingLevel = player.getLevelForXP(player.playerXP[skillId]);
         final int maxXpDifference = 200000000 - currentXP;
         if (baseAmount > 0) {
+
             final int amount = this.getXPWithModifiers(skillId, baseAmount);
             final int quotient = maxXpDifference / amount;
             final int remainder = maxXpDifference % amount;
@@ -106,6 +109,11 @@ public class SkillController {
     }
 
     private int getXPWithModifiers(int skill, int baseAmount) {
+        if (this.getSkill(skill) == null) {
+            logger.error("No skill found for ID: {}", skill);
+            throw new NullPointerException("No skill found for ID: " + skill);
+//            return baseAmount;
+        }
         int amount = baseAmount;
         if (player.getContext().getPlayerSaveData().getBonusXp().containsKey(skill)) {
             if (player.getContext().getPlayerSaveData().getBonusXp().get(skill).value() > baseAmount) {
@@ -138,9 +146,11 @@ public class SkillController {
         } else if(skill == SkillDictionary.Skill.FIREMAKING.getId() && player.getAttributes().getSkillStationId() == 11017) {
             amount += (baseAmount * 0.1) < 1 ? 1 : (baseAmount * 0.1);
         }
-
+        System.out.printf("Gains Bonus: %f\n", this.getSkill(skill).getGainsBonus());
+        System.out.printf("Equipment Bonus: %f\n", this.getSkill(skill).getEquipmentBonuses());
+        System.out.printf("Amount: %d\n", amount);
         if (this.getSkill(skill) != null)
-            amount *= this.getSkill(skill).getGainsBonus() + this.getSkill(skill).getEquipmentBonuses();
+            amount *= (int) Math.max(1,this.getSkill(skill).getGainsBonus() + this.getSkill(skill).getEquipmentBonuses());
         return amount;
     }
 

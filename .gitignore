@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -24,7 +23,7 @@ hs_err_pid*
 replay_pid*
 
 # Character  Saves
-characters/*
+Characters/*
 
 # Logs
 Data/logs/*
@@ -37,6 +36,9 @@ Data/clan/*
 *.iml
 .classpath
 .project
+
+# Exclude a specific .xml file from being ignored
+!res/logback.xml
 
 # Not sure / Legacy
 Data/Server/starters.var

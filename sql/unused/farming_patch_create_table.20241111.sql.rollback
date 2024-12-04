@@ -1,0 +1,6 @@
+drop table if exists farming_patch;
+
+drop index if exists patch_patch_id_idx;
+drop index if exists patch_region_id_idx;
+drop index if exists patch_patch_group_id_idx;
+drop index if exists patch_patch_type_id_idx;

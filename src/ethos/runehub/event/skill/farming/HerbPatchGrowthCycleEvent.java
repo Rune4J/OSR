@@ -1,5 +1,6 @@
 package ethos.runehub.event.skill.farming;
 
+import ethos.model.players.PlayerHandler;
 import ethos.runehub.event.FixedScheduleEvent;
 import ethos.runehub.skill.gathering.farming.FarmController;
 import ethos.runehub.skill.gathering.farming.patch.PatchType;
@@ -11,8 +12,11 @@ public class HerbPatchGrowthCycleEvent extends FixedScheduleEvent {
 
     @Override
     public void execute() {
-        Logger.getGlobal().info("Herb growth cycle event");
-        FarmController.getInstance().grow(PatchType.HERB);
+        PlayerHandler.getPlayers().forEach(player -> {
+            if (player != null) {
+                player.getSkillController().getFarming().advanceGrowthStage(1,24);
+            }
+        });
     }
 
     public HerbPatchGrowthCycleEvent() {

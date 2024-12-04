@@ -1,6 +1,5 @@
 package ethos.runehub.event.player;
 
-import ethos.Server;
 import ethos.event.Event;
 import ethos.model.players.Player;
 

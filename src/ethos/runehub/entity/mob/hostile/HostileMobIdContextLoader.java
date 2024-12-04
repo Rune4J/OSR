@@ -40,7 +40,7 @@ public class HostileMobIdContextLoader extends LazyLoader<Integer, HostileMobCon
         if (key != -1) {
             HostileMobContext context = HostileMobContextDAO.getInstance().read(key);
             if (context == null) {
-                Logger.getGlobal().severe("No Value: " + key);
+                Logger.getGlobal().severe("No Value Found: " + key);
             }
             return context;
         }

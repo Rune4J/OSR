@@ -2,6 +2,7 @@ package ethos.runehub.skill.gathering.farming.action;
 
 import com.google.common.base.Preconditions;
 import ethos.model.players.Player;
+import ethos.rune4j.model.dto.skill.farming.PatchContext;
 import ethos.runehub.RunehubUtils;
 import ethos.runehub.entity.item.ItemInteractionContext;
 import ethos.runehub.skill.gathering.GatheringSkillAction;
@@ -19,7 +20,7 @@ public class ClearPatchAction extends GatheringSkillAction {
 
     @Override
     protected void updateAnimation() {
-        this.getActor().startAnimation(830);
+
     }
 
     @Override
@@ -34,11 +35,15 @@ public class ClearPatchAction extends GatheringSkillAction {
 
     @Override
     protected void onGather() {
-        config.setCrop(0);
-        config.setStage(3);
-        config.setDiseased(false);
-        config.setWatered(false);
-        config.setCompost(0);
+        context.setCurrentGrowthStage(3); //we set it to 3 so the patch is empty and has no weeds
+        context.setDiseasedState(0);
+        context.setWateredState(0);
+        context.setOccupiedById(0);
+        context.setCompostId(0);
+        context.setPatchProtectedState(0);
+        context.setHarvestTime(0);
+        context.setPlantTime(0);
+        this.getActor().getSkillController().getFarming().savePatchContext(context);
         this.getActor().getSkillController().getFarming().updateFarm(RunehubUtils.getRegionId(targetedNodeContext.getX(),targetedNodeContext.getY()));
     }
 
@@ -57,8 +62,9 @@ public class ClearPatchAction extends GatheringSkillAction {
 
     @Override
     public void onTick() {
+        this.getActor().startAnimation(830);
         if (cycle <= 4) {
-            this.updateAnimation();
+            this.getActor().startAnimation(830);
             cycle++;
         } else {
             this.onGather();
@@ -82,16 +88,16 @@ public class ClearPatchAction extends GatheringSkillAction {
     protected void validateWorldRequirements() {
     }
 
-    public ClearPatchAction(Player player, FarmingConfig config, int nodeId, int nodeX, int nodeY) {
+    public ClearPatchAction(Player player, int nodeId, int nodeX, int nodeY, PatchContext context) {
         super(player, SkillDictionary.Skill.FARMING.getId(), new GatheringNodeContext<>(nodeId, nodeX, nodeY, 0) {
             @Override
             public GatheringNode getNode() {
                 return new GatheringNode(nodeId, 1, 4, -1L, 1000, SkillDictionary.Skill.FARMING.getId(), 1000);
             }
         }, 2);
-        this.config = config;
+        this.context = context;
     }
 
     private int cycle;
-    private final FarmingConfig config;
+    private final PatchContext context;
 }
