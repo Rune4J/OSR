@@ -1,0 +1,359 @@
+Overview
+Farming works by sending something called a "varbit" to the client. This varbit is a number that represents the current state of the farming patch. The client then uses this varbit to determine what the patch should look like. The varbit is sent to the client every time the player logs in, and every time the player interacts with the patch. This is why the patch updates when you log in, and when you plant a seed.
+Farming patches are not treated as different objects. For example the herb patch in Catherby and the herb patch in Falador are the same object. These varbits are unique to the client and a region. This is why farming patches are always in their own region chunk.
+This means that the server must store the individual  components/states of each patch and use them to calculate what the varbit should be.
+These are the patch components/states that impact the varbit:
+    - If the patch is diseased
+    - If the patch is watered
+    - What crop is in the patch
+    - The growth stage of the crop
+    - The patch group ID
+
+The diseased state is a 1/0 value that determines that will determine if the patch needs to be rendered as diseased. Where 1 is true and 0 is false.
+The watered state is a 1/0 value that determines if the patch needs to be rendered as watered. Where 1 is true and 0 is false.
+    - Having a true state on both the watered and diseased state will render the patch as dead
+The stage of the patch represents the current growth cycle of the crop. This a number between 0 and 7. 0 is the initial state, and 7 is the final state. Not all crops have 8 stages, many have less.
+The patch group ID is a number that represents the type of patch. For example an allotment patch is group ID of 0 or 8 depending on if it's the northern or southern patch.
+    - Northern allotment: 0
+    - Southern allotment: 8
+    - Herb patch: 24
+    - Flower patch: 16
+    - All other patch types appears to be ID 32 but I have not fully confirmed this
+The crop in the patch state is not straightforward. The ID used is not an item/object id corresponding with a crop object. It's instead an index where if for example a potato starts at index 6 (the seed has just been planted) and has 5 stages it will end at index 11 and index 12+ will not be potato configs.
+This crop index is currently being stored with the crop data as each crop is unique and has it's own growth success chance, indexes, stages, xp, harvest, etc.
+
+In order to effectively have a "farming" skill we need to store these patch state variables so that we can send the config data to the client when the region is loaded per player.
+This means we need a way to link state data to a player and a region, so that if player ID N loads region X we send Y varbit data to the client.
+
+We could have an indexed table that contains a player ID, and region ID and the varbit. This would allow for quick and efficient loading of the farming configs.
+We will also need to be able to extract data from the varbit to perform conditional checks on such as if a player attempts to water a patch how can we see if the patch is already watered with only the varbit.
+
+An alternative approach would be to have a table that contains the player ID and region ID and a config ID and use this table to look up config data from another table in which we store the waters/diseased states, the growth stage, and the crop index.
+
+The only constraints would be there should never be a duplicate where the player ID and region ID and config ID are the same.
+
+
+Patch Growth
+The growth cycles of patch types is static meaning allotments grow every 10 minutes, herbs grow every 20 minutes, etc. The only variable is number of stages a crop has to progress through to reach maturity.
+This also means that if you plant a crop 1 minute before the 10 minute tick it will advance a stage.
+Each growth cycle the plant must roll a disease check this is to determine if the patch will be diseased. This success chance has a base rate which is currently stored with the crop data, and is modified by if the patch has been composted/by what compost, and if the patch has been watered.
+Alternative factors may be used to modify this disease check success rate, such as if the farmer has been paid, or if a white lilly/scarecrow is planted.
+
+This introduces a new layer of complexity to farming as it now requires us to store compost data. Compost is part of the varbit nor is it a simple true/false value. Compost has 4 states:
+    - No compost
+    - Regular compost
+    - Super compost
+    - Ultra compost
+
+This means we need to store the compost state as a number between 0 and 3. This is because the compost state is used to modify the disease check success rate.
+
+This also introduces the need to store data of if the farmer is protecting the patch or not, in the base game farmer's will only protect allotments, trees, and fruit trees, and bushes. Flowers and herbs are not protected however this appears to be a design choice not a product limitation.
+This means we need a way to associate if a patch is protected or not and then use that 1/0 value to either roll/skip the disease check.
+
+With this we can also see the necessity of having individual crop data stored as well where we need to no the starting index for the varbit, the seed, the base success chance, the stage count, the xp for planting/harvesting, the base harvest amount (the minimum amount that can be harvested unmodified),
+the harvested crop ID, and if the crop regrows or not as crops like fruit trees should regrow fruit even after being harvested. Where allotments need to be planted to be harvested again.
+
+
+It is also important to note that what determines if a patch is dead or not is if both diseased and watered states are 1. Which means when we advance a growth cycle if the patch was diseased it should die on the next cycle and we need to set watered state to 1 to render dead patch.
+This mechanic presents another challenge in the form of if the patch is diseased and the player waters the patch the patch should NOT die. Since the mechanic is both states must be 1 for the patch to be dead we need to do 2 things. 1. Prevent players from watering diseased crops. 2. Reset the watered state to 0 each growth cycle unless the plant is diseased.
+
+
+Plant Cure
+All patches can be cured of disease by the action of using a plant cure on the patch. In the event that a player cures a patch we need to set the diseased state to 0 and rerender the patch.
+
+Harvesting
+When a patch reaches it's final stage it becomes harvestable. Note that this is not a state variable and this is determined by the object ID itself as when a patch reaches it's final stage the object ID in the patches becomes the object ID of a harvestable node.
+To determine how many crops are harvested we need to track how many have been harvested and ensure that it's at least the minimum and then using any modifiers of our choice determine a maximum and success chance and roll for success for each harvest after the minimum.
+
+This introduces an additional complexity as we now need to store how many crops have been harvested by any given patch. If we do not store this in theory a player can harvest a patch infinitely.
+
+Weeds
+Weeds are an unusual mechanic that introduces additional complexity. Weeds have their own static growth cycle of 4 minutes where every 4 minutes if there's no crop in a patch and the patch is not composted weeds will grow.
+Weeds have their own growth stages and can be removed by using a rake on the patch.
+Harvesting weeds requires a rake and will yield a small amount of farming xp and weeds item. The amount that can be harvested varies by the stage of the weeds. Up to 4 weeds can be harvested from a fully matured weed patch.
+However unlike other crops weeds do not need to reach maturity to be harvested. Weeds can be harvested at any stage of growth and will yield 1 weeds item for the 1st stage, 2 for the 2nd, 3 for the 3rd, and 4 for the 4th stage.
+
+
+Data Storage
+
+    Patch state variables:
+        - Watered state
+        - Diseased state
+        - Growth stage
+        - Crop index
+        - Patch group ID
+    Crop data (Not related to patch state):
+        - Seed ID
+        - Minimum disease check success chance
+        - Stage count
+        - Planting XP
+        - Harvesting XP
+        - Base harvest amount
+        - Harvested crop ID
+        - Regrows
+        - Level requirement
+    Compost data:
+        - Compost state (0-3)
+    Protection data:
+        - Protected state
+    Harvest data:
+        - Harvested count
+    Player data
+        - Player ID
+    Region data
+        - Region ID
+
+Make a table to join seed ID with crop index
+Make a table to join patch state with player ID and region ID
+
+Player farming variables table
+player_id | region_id | state_id | compost_state | protected_state | harvested_count
+
+Patch state table
+state_id | watered | diseased | growth_stage | crop_index | patch_group_id
+
+Seed/crop index join table
+seed_id | crop_index
+
+Crop data table
+crop_index | seed_id | min_disease_chance | stage_count | planting_xp | harvesting_xp | base_harvest_amount | harvested_crop_id | regrows | level_requirement
+
+
+Let's split crop data from patch state data. seed, xp, level, etc. Are more like meta data whereas crop index, stage count, regrows, and disease are directly related to the patch state.
+Crop metadata table
+seed_id | planting_xp | harvesting_xp | base_harvest_amount | harvested_crop_id | level_requirement
+
+Crop state table
+crop_index | min_disease_chance | stage_count | regrows
+
+Data movement
+
+From a new account there is no data populated.
+
+    Triggers:
+        - On player login
+        - On region load
+        - On patch interaction
+        If there is no data for the player stored we will create it only if the patch is interacted with
+
+
+Allotments
+Index 0-3 is weeds for crop index
+index 4-5 appears to just be fully grown weeds
+index 6-10 is potatoes
+index 11-12 is fully grown potatoes
+index 13-17 is onions
+index 18-19 is fully grown onions
+index 20-24 is cabbage
+index 25-26 is fully grown cabbage
+index 27-31 is tomatoes
+index 32-33 is fully grown tomatoes
+index 34-40 is sweetcorn
+index 41-42 is fully grown sweetcorn
+index 43-49 is strawberries
+index 50-51 is fully grown strawberries
+index 52-60 is watermelons
+index 61-62 is fully grown watermelons
+
+Herbs
+0-3 is weeds
+4-8 is guam
+9-10 is fully grown guam
+11-15 is marrentill
+16-17 is fully grown marrentill
+18-22 is tarromin
+23-24 is fully grown tarromin
+25-29 is harralander
+30-31 is fully grown harralander
+32-36 is ranarr
+37-38 is fully grown ranarr
+39-43 is toadflax
+44-45 is fully grown toadflax
+46-50 is irit
+51-52 is fully grown irit
+53-57 is avantoe
+58-59 is fully grown avantoe
+68-72 is kwuarm
+73-74 is fully grown kwuarm
+75-79 is snapdragon
+80-81 is fully grown snapdragon
+82-86 is cadantine
+87-88 is fully grown cadantine
+89-93 is lantadyme
+94-95 is fully grown lantadyme
+96-100 is dwarf weed
+101-102 is fully grown dwarf weed
+103-107 is torstol
+108-109 is fully grown torstol
+
+
+Flowers
+0-3 is weeds
+8-12 is marigold
+13-17 is rosemary
+18-22 is nasturtium
+23-27 is woad
+28-32 is limpwurt
+33-37 is white lily
+38 is scarecrow
+
+Trees the last index is the check health state example: index 12 is the check health state of oak
+0-3 is weeds
+8-12 is oak
+13 is fully grown oak - chop down
+14 is oak stump
+15-21 is willow
+22 is fully grown willow - chop down
+23 is willow stump
+24-32 is maple
+33 is fully grown maple - chop down
+34 is maple stump
+35-45 is yew
+46 is fully grown yew - chop down
+47 is yew stump
+48-60 is magic
+61 is fully grown magic - chop down
+62 is magic stump
+
+Hops
+0-3 is weeds
+4-8 is hammerstone
+9-10 is fully grown hammerstone
+11-16 is asgarnian
+17-18 is fully grown asgarnian
+19-25 is yanillian
+26-27 is fully grown yanillian
+28-35 is krandorian
+36-37 is fully grown krandorian
+38-46 is wildblood
+47-48 is fully grown wildblood
+49-53 is barley
+54-55 is fully grown barley
+56-61 is jute
+62-63 is fully grown jute
+
+Bushes
+0-3 is weeds
+5-9 is redberries (not mature)
+10 is redberries (mature and empty)
+11 is redberries (mature (1))
+12 is redberries (mature (2))
+13 is redberries (mature (3))
+14 is redberries (mature (4))
+15-20 is cadava berries (not mature)
+21 is cadava berries (mature and empty)
+22-25 is cadava berries (mature (1-4))
+26-32 is dwellberries (not mature)
+33 is dwellberries (mature and empty)
+34-37 is dwellberries (mature (1-4))
+38-45 is jangerberries (not mature)
+46 is jangerberries (mature and empty)
+47-50 is jangerberries (mature (1-4))
+51-58 is whiteberries (not mature)
+59 is whiteberries (mature and empty)
+60-63 is whiteberries (mature (1-4))
+
+fruit trees and similar types have their varbit calculated differently and simply use the stage + cropIndex and a diseased index is the base index + 13 and the dead index is the base index + 19
+what we need to do to keep this relatively simple is code it so that for these patches setting the diseased/watered flag increase the crop index but keep the flags at 0. The other challenge with these
+is that you do NOT bitshift by the patch location id it's strictly crop index + stage = varbit
+
+fruit trees are 6 stages per state (growing, mature, diseased, dead) and have 3 other states with only 1 stage. Empty, stump, and check health
+Empty is always stages per state + 1
+stump is always stages per state * number of states + 1
+check health is always stump + 1
+
+startingIndex + growthStages + maturityStages = next state
+startingIndex + growthStages + maturityStages + (growthStages ) = dead state
+
+Fruit trees
+0-3 is weeds
+8-13 is apple (not mature)
+14 is apple (mature and empty) - chop down
+15-20 is apple (mature)
+21-26 is apple (diseased) // 26 is the  diseased variant of 14 26. Stage 6 and 7 of the diseased/dead variants are unused
+27-32 is apple (dead)
+33 is apple stump
+34 is mature check health apple tree
+35-40 is banana (not mature)
+41 is banana (mature and empty) - chop down
+42-47 is banana (mature)
+48-53 is banana (diseased)
+54-59 is banana (dead)
+60 is banana stump
+61 is mature check health banana tree
+72-77 is orange (not mature)
+78 is orange (mature and empty) - chop down
+79-84 is orange (mature)
+85-90 is orange (diseased)
+91-96 is orange (dead)
+97 is orange stump
+98 is mature check health orange tree
+99-104 is curry (not mature)
+105 is curry (mature and empty) - chop down
+106-111 is curry (mature)
+112-117 is curry (diseased)
+118-123 is curry (dead)
+124 is curry stump
+125 is mature check health curry tree
+136-141 is pineapple (not mature)
+142 is pineapple (mature and empty) - chop down
+143-148 is pineapple (mature)
+149-154 is pineapple (diseased)
+155-160 is pineapple (dead)
+161 is pineapple stump
+162 is mature check health pineapple tree
+163-168 is papaya (not mature)
+169 is papaya (mature and empty) - chop down
+170-175 is papaya (mature)
+176-181 is papaya (diseased)
+182-187 is papaya (dead)
+188 is papaya stump
+189 is mature check health papaya tree
+200-205 is palm (not mature)
+206 is palm (mature and empty) - chop down
+207-212 is palm (mature)
+213-218 is palm (diseased)
+219-224 is palm (dead)
+225 is palm stump
+226 is mature check health palm tree
+
+startingIndex + growthStages + maturityStages = next state
+(startingIndex - 1) + (growthStages * 2) + maturityStages = dead state
+Fruit tree dead state formula
+startingIndex + (growthStages * 2) + maturityStages + 6 = dead state
+
+Special (cacti)
+0-3 is weeds
+8-14 is cactus (not mature)
+15 is cactus (mature and empty)
+16-18 is cactus (mature)
+19-24 is cactus (diseased)
+25-30 is cactus (dead)
+31 is cactus mature check health
+
+
+Special (spirit tree)
+0-3 is weeds
+8-20 is spirit tree
+21-31 is spirit tree (diseased)
+32-43 is spirit tree (dead)
+44 is spirit tree (teleport)
+
+
+After finding all of the config data it's clear the crop index is always going to be 0-3 is weed where 0 is fully grown weeds and 3 is a clear patch.
+
+Other than that it varies depending on the patch type.
+
+    Allotments
+        0-62 after each crop type there is 2 indexes for fully grown crops (not sure of their intended purpose)
+            - For example 6-10 is potatoes and 11-12 is fully grown potatoes and onions start at 13
+    Herbs
+        Herbs are unique in that they go from 0-59 following the same pattern as allotments however after 59 there is a break until 68 which is kwuarm and the process repeats until 109 which is torstol
+
+The double indexes after each crop type are likely placeholders where if the average crop cycle has 4 stages, but the max allotment is 6 then all crops will have 6 indexes where the last 2 are unused except for the allotments with 6 stages.
+
+
+
+
+
+

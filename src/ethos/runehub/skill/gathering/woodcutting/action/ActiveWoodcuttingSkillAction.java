@@ -1,7 +1,10 @@
 package ethos.runehub.skill.gathering.woodcutting.action;
 
 import ethos.Server;
+import ethos.model.items.GroundItem;
+import ethos.model.npcs.drops.DropManager;
 import ethos.model.players.Player;
+import ethos.model.players.skills.firemake.Firemaking;
 import ethos.model.players.skills.firemake.LogData;
 import ethos.runehub.content.journey.JourneyStepType;
 import ethos.runehub.skill.Skill;
@@ -69,6 +72,7 @@ public class ActiveWoodcuttingSkillAction extends GatheringSkillAction {
 
     @Override
     protected void addItems() {
+        System.out.println( LootTableLoader.getInstance().read(this.getTargetedNodeContext().getNode().getGatherableItemTableId()).getLootTableEntries().size());
         LootTableLoader.getInstance().read(this.getTargetedNodeContext().getNode().getGatherableItemTableId()).roll(this.getActor().getAttributes().getMagicFind()).forEach(loot -> {
             int itemId = Math.toIntExact(loot.getId());
 

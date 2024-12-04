@@ -3,6 +3,7 @@ package ethos.model.players.packets;
 import ethos.Server;
 import ethos.model.players.PacketType;
 import ethos.model.players.Player;
+import ethos.runehub.RunehubUtils;
 
 /**
  * Change Regions
@@ -23,6 +24,8 @@ public class ChangeRegions implements PacketType {
 			c.headIconPk = 0;
 			c.getPA().requestUpdates();
 		}
+		int regionId = RunehubUtils.getRegionId(c.absX, c.absY);
+		c.getSkillController().getFarming().updateFarm(regionId);
 	}
 
 }

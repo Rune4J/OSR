@@ -2,12 +2,10 @@ package ethos.runehub.skill.gathering.farming.action;
 
 import com.google.common.base.Preconditions;
 import ethos.model.players.Player;
+import ethos.rune4j.model.dto.skill.farming.PatchContext;
 import ethos.runehub.RunehubUtils;
 import ethos.runehub.entity.item.ItemInteractionContext;
 import ethos.runehub.skill.gathering.GatheringSkillAction;
-import ethos.runehub.skill.gathering.farming.FarmingConfig;
-import ethos.runehub.skill.gathering.farming.crop.CropCache;
-import ethos.runehub.skill.gathering.farming.crop.CropDAO;
 import ethos.runehub.skill.gathering.tool.GatheringTool;
 import ethos.runehub.skill.node.context.impl.GatheringNodeContext;
 import ethos.runehub.skill.node.impl.gatherable.GatheringNode;
@@ -29,20 +27,28 @@ public class PlantSeedAction extends GatheringSkillAction {
 
     @Override
     protected void validateItemRequirements() {
-        Preconditions.checkArgument(CropDAO.getInstance().getAllEntries().stream().anyMatch(crop -> crop.getId() == interactionContext.getUsedId()),"You can not plant this.");
-        Preconditions.checkArgument(config.getType() == CropCache.getInstance().read(interactionContext.getUsedId()).getPatchTypeId(), "You can not plant this here." );
-        Preconditions.checkArgument(this.getActor().getItems().playerHasItem(interactionContext.getUsedId(),CropCache.getInstance().read(interactionContext.getUsedId()).getSeedAmount()),"You need @"  + interactionContext.getUsedId() +  " x #" + CropCache.getInstance().read(interactionContext.getUsedId()).getSeedAmount() + ".");
+        int validPatchLocation = this.getActor().getSkillController().getFarming().getCropState(interactionContext.getUsedId()).getPatchLocation();
+//        Preconditions.checkArgument(CropDAO.getInstance().getAllEntries().stream().anyMatch(crop -> crop.getId() == interactionContext.getUsedId()),"You can not plant this.");
+        Preconditions.checkArgument(
+                validPatchLocation == 0
+                        ? context.getPatchLocationId() == 0 || context.getPatchLocationId() == 8
+                        : context.getPatchLocationId() == validPatchLocation,
+                "You cannot plant this here."
+        );
+        Preconditions.checkArgument(this.getActor().getItems().playerHasItem(interactionContext.getUsedId(), this.getActor().getSkillController().getFarming().getSeedsRequiredToPlant(interactionContext.getUsedId())), "You need @" + interactionContext.getUsedId() + " x #" + this.getActor().getSkillController().getFarming().getSeedsRequiredToPlant(interactionContext.getUsedId()) + ".");
         Preconditions.checkArgument(this.getActor().getItems().playerHasItem(5343), "You do not have a valid tool.");
     }
 
     @Override
     protected void onGather() {
         this.getActor().startAnimation(2291);
-        this.getActor().getItems().deleteItem2(interactionContext.getUsedId(), CropCache.getInstance().read(interactionContext.getUsedId()).getSeedAmount());
-        config.setCrop(interactionContext.getUsedId());
-        config.setStage(0);
-        this.getActor().getSkillController().getFarming().updateFarm(RunehubUtils.getRegionId(interactionContext.getX(),interactionContext.getY()));
-        this.getActor().getPA().addSkillXP(CropCache.getInstance().read(interactionContext.getUsedId()).getPlantXp(),SkillDictionary.Skill.FARMING.getId(), true);
+        this.getActor().getItems().deleteItem2(interactionContext.getUsedId(), this.getActor().getSkillController().getFarming().getSeedsRequiredToPlant(interactionContext.getUsedId()));
+        context.setOccupiedById(interactionContext.getUsedId());
+        context.setCurrentGrowthStage(0);
+        context.setPlantTime(System.currentTimeMillis());
+        this.getActor().getSkillController().getFarming().savePatchContext(context);
+        this.getActor().getSkillController().getFarming().updateFarm(RunehubUtils.getRegionId(interactionContext.getX(), interactionContext.getY()));
+        this.getActor().getPA().addSkillXP(this.getActor().getSkillController().getFarming().getXPFromPlanting(interactionContext.getUsedId()), SkillDictionary.Skill.FARMING.getId(), true);
     }
 
     @Override
@@ -60,13 +66,12 @@ public class PlantSeedAction extends GatheringSkillAction {
 
     @Override
     public void onTick() {
-        if (cycle <= CropCache.getInstance().read(interactionContext.getUsedId()).getSeedAmount()) {
+        if (cycle <= this.getActor().getSkillController().getFarming().getSeedsRequiredToPlant(interactionContext.getUsedId())) {
             this.getActor().startAnimation(2291);
             this.updateAnimation();
             cycle++;
         } else {
             this.onGather();
-            this.getActor().startAnimation(65535);
             this.stop();
         }
     }
@@ -77,17 +82,17 @@ public class PlantSeedAction extends GatheringSkillAction {
                 "You need a ?"
                         + SkillDictionary.getSkillNameFromId(this.getSkillId())
                         + " level of at least #"
-                        + CropCache.getInstance().read(interactionContext.getUsedId()).getLevelRequirement()
+                        + this.getActor().getSkillController().getFarming().getSeedLevelRequirement(interactionContext.getUsedId())
                         + " to do this.");
 
     }
 
     @Override
     protected void validateWorldRequirements() {
-            Preconditions.checkArgument((config.getCrop() == 0 && config.getStage() == 3),"You must clear this patch before you can plant these.");
+        Preconditions.checkArgument((context.getOccupiedById() == 0 && context.getCurrentGrowthStage() == 3), "You must clear this patch before you can plant these.");
     }
 
-    public PlantSeedAction(Player player, ItemInteractionContext interactionContext) {
+    public PlantSeedAction(Player player, ItemInteractionContext interactionContext, PatchContext context) {
         super(player, SkillDictionary.Skill.FARMING.getId(), new GatheringNodeContext<>(interactionContext.getUsedWithId(), interactionContext.getX(), interactionContext.getY(), 0) {
             @Override
             public GatheringNode getNode() {
@@ -95,10 +100,10 @@ public class PlantSeedAction extends GatheringSkillAction {
             }
         }, 2);
         this.interactionContext = interactionContext;
-        this.config = player.getSkillController().getFarming().getConfig(interactionContext.getUsedWithId(), RunehubUtils.getRegionId(interactionContext.getX(), interactionContext.getY())).orElse(null);
+        this.context = context;
     }
 
     private int cycle;
     private final ItemInteractionContext interactionContext;
-    private final FarmingConfig config;
+    private final PatchContext context;
 }

@@ -22,7 +22,7 @@ public class RunecraftMultiplierLoader extends LazyLoader<Integer,RunecraftMulti
         try {
             RunecraftMultiplier value = serializer.read(new File("./Data/runehub/skills/rune-multipliers.json")).getMultiplierMap().get(key);
             if (value == null) {
-                throw new NullPointerException("No Value: " + key);
+                throw new NullPointerException("No Value Found: " + key);
             } else {
                 return value;
             }

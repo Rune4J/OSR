@@ -1,0 +1,7 @@
+-- Remove the player_farming_variables table
+DROP TABLE IF EXISTS farming_player_farming_variables;
+
+-- Drop indexes
+DROP INDEX IF EXISTS player_farming_variables_player_id_idx;
+DROP INDEX IF EXISTS player_farming_variables_region_id_idx;
+DROP INDEX IF EXISTS player_farming_variables_state_id_idx;

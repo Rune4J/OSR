@@ -1,7 +1,6 @@
 package ethos.runehub.action.click.item;
 
 import ethos.Server;
-import ethos.event.impl.HealthManager;
 import ethos.model.players.Player;
 import ethos.runehub.LootTableContainerUtils;
 import ethos.runehub.RunehubConstants;
@@ -146,7 +145,7 @@ public class ClickItemActionFactory {
                 break;
             case 8026:
                 action = new EfficiencyBooster(player,itemId,1,slot,24,8);
-
+                break;
             case 8007:
             case 8008:
             case 8009:

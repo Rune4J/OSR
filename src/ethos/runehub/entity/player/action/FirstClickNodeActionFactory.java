@@ -1,24 +1,17 @@
 package ethos.runehub.entity.player.action;
 
-import ethos.clip.Region;
 import ethos.model.players.Player;
-import ethos.runehub.RunehubUtils;
 import ethos.runehub.content.instance.BossArenaInstanceController;
 import ethos.runehub.content.instance.impl.tomb.TombInstanceController;
 import ethos.runehub.entity.item.ItemInteractionContext;
-import ethos.runehub.entity.merchant.MerchantCache;
-import ethos.runehub.entity.node.Node;
 import ethos.runehub.entity.player.action.impl.node.*;
 import ethos.runehub.skill.artisan.actions.ManualMilkCowAction;
-import ethos.runehub.skill.node.impl.support.SupportNode;
 import ethos.runehub.skill.support.firemaking.action.LightBurnerAction;
 import ethos.runehub.ui.impl.BossInstanceUI;
 import ethos.runehub.ui.impl.ItemUpgradeUI;
 import ethos.runehub.ui.impl.TombRaiderUI;
 import ethos.runehub.ui.impl.cooking.BrewingUI;
 import ethos.runehub.ui.impl.cooking.CookingUI;
-import org.runehub.api.model.world.Face;
-import org.runehub.api.util.SkillDictionary;
 
 import java.util.logging.Logger;
 
@@ -187,6 +180,42 @@ public class FirstClickNodeActionFactory {
             case 13648:
             case 18245:
                 return new FirstClickLecternAction(player,nodeX,nodeY,nodeId);
+            case 8550:
+            case 8551:
+            case 7847:
+            case 8150:
+            case 8554:
+            case 8552:
+            case 8556:
+            case 8555:
+            case 8553:
+            case 8557:
+            case 7849:
+            case 7848:
+            case 7850:
+            case 8152:
+            case 8151:
+            case 8153:
+            case 8175:
+            case 8176:
+            case 8173:
+            case 8174:
+            case 7577:
+            case 7578:
+            case 7580:
+            case 7579:
+            case 8391:
+            case 8390:
+            case 8389:
+            case 8388:
+            case 19147:
+            case 7962:
+            case 7965:
+            case 7963:
+            case 7964:
+            case 8338:
+            case 26579:
+                return new FirstClickFarmingPatchAction(player, nodeX, nodeY, nodeId);
         }
         return null;
     }

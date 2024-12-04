@@ -1,9 +1,6 @@
 package ethos.runehub.skill.artisan.smithing.action;
 
 import com.google.common.base.Preconditions;
-
-import ethos.model.content.achievement.AchievementType;
-import ethos.model.content.achievement.Achievements;
 import ethos.model.players.Player;
 import ethos.runehub.RunehubUtils;
 import ethos.runehub.entity.item.ItemInteractionContext;
@@ -45,15 +42,12 @@ public class SmeltAction extends SkillAction {
                 this.addXp((int) (smeltable.getXpPerAction() * 2.5));
             } else {
                 this.addXp(smeltable.getXpPerAction());
-                
             }
             this.getActor().sendMessage("You successfully smelt the @" + smeltable.getProductId());
         } else {
             this.getActor().sendMessage("You fail to smelt the @" + smeltable.getPrimaryOre());
         }
         iterations--;
-		Achievements.increase(this.getActor(), AchievementType.MINE, 1);
-
     }
 
     @Override

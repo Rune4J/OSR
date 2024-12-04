@@ -38,32 +38,4 @@ public abstract class TabUI extends GameUI {
     }
 
     private final int sideBarId;
-
-    private int currentPage = 0; // Assuming pages are 0-indexed
-    private final int totalPages = 10; // Example total pages, adjust as needed
-
-    public void prevPage() {
-        if (currentPage > 0) {
-            currentPage--;
-            updateUI();
-        } else {
-            // Optional: Notify the user that they're already on the first page
-            System.out.println("You are already on the first page.");
-        }
-    }
-
-    public void nextPage() {
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            updateUI();
-        } else {
-            // Optional: Notify the user that they're already on the last page
-            System.out.println("You are already on the last page.");
-        }
-    }
-
-    private void updateUI() {
-        // Code to update the interface to show the content of the currentPage
-        System.out.println("UI updated to show page: " + currentPage);
-    }
 }

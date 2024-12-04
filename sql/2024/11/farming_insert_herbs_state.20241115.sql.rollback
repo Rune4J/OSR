@@ -1,0 +1,1 @@
+DELETE FROM farming_crop_state WHERE seed_id BETWEEN 5291 AND 5304;

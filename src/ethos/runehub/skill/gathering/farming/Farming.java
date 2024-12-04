@@ -1,20 +1,38 @@
 package ethos.runehub.skill.gathering.farming;
 
-import ethos.model.content.achievement.AchievementType;
-import ethos.model.content.achievement.Achievements;
 import ethos.model.players.Player;
+import ethos.rune4j.entity.skill.farming.CropMeta;
+import ethos.rune4j.entity.skill.farming.PatchMetaState;
+import ethos.rune4j.entity.skill.farming.PatchState;
+import ethos.rune4j.model.dto.skill.farming.PatchContext;
+import ethos.rune4j.repository.skill.farming.impl.PatchMetaStateRepositoryImpl;
+import ethos.rune4j.repository.skill.farming.impl.PatchStateRepositoryImpl;
+import ethos.rune4j.service.skill.farming.CropMetaService;
+import ethos.rune4j.service.skill.farming.CropStateService;
+import ethos.rune4j.service.skill.farming.PatchMetaStateService;
+import ethos.rune4j.service.skill.farming.PatchStateService;
+import ethos.rune4j.service.skill.farming.impl.CropMetaServiceImpl;
+import ethos.rune4j.service.skill.farming.impl.CropStateServiceImpl;
+import ethos.rune4j.service.skill.farming.impl.PatchMetaStateServiceImpl;
+import ethos.rune4j.service.skill.farming.impl.PatchStateServiceImpl;
+import ethos.rune4j.skill.gathering.farming.growth.GrowthStrategy;
+import ethos.rune4j.skill.gathering.farming.growth.GrowthStrategyFactory;
+import ethos.runehub.RunehubConstants;
 import ethos.runehub.RunehubUtils;
+import ethos.runehub.entity.player.PlayerFarmingSave;
+import ethos.runehub.entity.player.PlayerFarmingSaveDAO;
+import ethos.rune4j.entity.skill.farming.CropState;
 import ethos.runehub.skill.SkillAction;
 import ethos.runehub.skill.gathering.GatheringSkill;
 import ethos.runehub.skill.gathering.tool.GatheringTool;
 import ethos.runehub.skill.gathering.tool.GatheringToolLoader;
 import ethos.runehub.skill.node.context.impl.GatheringNodeContext;
-import org.runehub.api.model.math.impl.AdjustableInteger;
+import org.runehub.api.util.IDManager;
 import org.runehub.api.util.SkillDictionary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,6 +70,8 @@ import java.util.stream.Collectors;
  * 8132 empty herb patch
  */
 public class Farming extends GatheringSkill {
+
+    private static final Logger logger = LoggerFactory.getLogger(Farming.class.getName());
 
     public static final int COMPOST = 6032;
     public static final int SUPERCOMPOST = 6034;
@@ -132,49 +152,313 @@ public class Farming extends GatheringSkill {
 
     public int getHarvestedAmount(GatheringNodeContext<?> context, FarmingConfig config) {
         final int regionId = RunehubUtils.getRegionId(context.getX(), context.getY());
-        return this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
-                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
-                    patchMap.put(config.getType(), new AdjustableInteger(0));
-                    return patchMap;
-                })
-                .computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).value();
+        if (PlayerFarmingSaveDAO.getInstance().selectFarmingDataByPlayerRegionAndPatch(this.getPlayer().getId(), regionId, config.getPatch()) == null) {
+            throw new NullPointerException("No such farming data.");
+        }
+        return PlayerFarmingSaveDAO.getInstance().selectFarmingDataByPlayerRegionAndPatch(this.getPlayer().getId(), regionId, config.getPatch()).getHarvested();
+//        return this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
+//                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
+//                    patchMap.put(config.getType(), new AdjustableInteger(0));
+//                    return patchMap;
+//                })
+//                .computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).value();
     }
 
     public void updateHarvestCounts(GatheringNodeContext<?> context, FarmingConfig config) {
         final int regionId = RunehubUtils.getRegionId(context.getX(), context.getY());
-        this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
-                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
-                    patchMap.put(config.getType(), new AdjustableInteger(0));
-                    return patchMap;
-                }).computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).increment();
-        		//Achievements.increase(player, AchievementType.FARM, 1); MICHAEL ACHIEVEMENT FARMING
+        final PlayerFarmingSave save = PlayerFarmingSaveDAO.getInstance().selectFarmingDataByPlayerRegionAndPatch(this.getPlayer().getId(), regionId, config.getPatch());
+        if (save == null) {
+            throw new NullPointerException("No such farming data.");
+        } else {
+            save.setHarvested(save.getHarvested() + 1);
+            PlayerFarmingSaveDAO.getInstance().updateFarmingData(save);
+        }
+//        this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
+//                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
+//                    patchMap.put(config.getType(), new AdjustableInteger(0));
+//                    return patchMap;
+//                }).computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).increment();
     }
 
     public void resetHarvestCounts(GatheringNodeContext<?> context, FarmingConfig config) {
         final int regionId = RunehubUtils.getRegionId(context.getX(), context.getY());
-        this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
-                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
-                    patchMap.put(config.getType(), new AdjustableInteger(0));
-                    return patchMap;
-                })
-                .computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).setValue(0);
+        final PlayerFarmingSave save = PlayerFarmingSaveDAO.getInstance().selectFarmingDataByPlayerRegionAndPatch(this.getPlayer().getId(), regionId, config.getPatch());
+        if (save == null) {
+            throw new NullPointerException("No such farming data.");
+        } else {
+            save.setHarvested(0);
+            PlayerFarmingSaveDAO.getInstance().updateFarmingData(save);
+        }
+//        this.getPlayer().getContext().getPlayerSaveData().getHarvestMap().computeIfAbsent(regionId, key -> {
+//                    final HashMap<Integer, AdjustableInteger> patchMap = new HashMap<>();
+//                    patchMap.put(config.getType(), new AdjustableInteger(0));
+//                    return patchMap;
+//                })
+//                .computeIfAbsent(config.getType(), key -> new AdjustableInteger(0)).setValue(0);
     }
 
-    public void updateAllConfigs() {
-        final AdjustableInteger varbit = new AdjustableInteger(0);
-        this.getPlayer().getContext().getPlayerSaveData().farmingConfig().keySet().forEach(key -> this.getPlayer().getContext().getPlayerSaveData().farmingConfig().get(key).forEach(config -> {
-                    varbit.add(config.varbit());
-                }
-        ));
-        this.getPlayer().getPA().sendConfig(529, varbit.value());
+    /**
+     * Advance growth stage by a certain amount
+     *
+     * @param stages         - the amount of stages to advance
+     * @param patchLocation  - the patch location id to advance
+     * @param overgrowthOnly - whether to only advance overgrown patches
+     */
+
+    public void advanceGrowthStage(int stages, int patchLocation, boolean overgrowthOnly) {
+        logger.info("Advancing growth stage by: {} at patch: {}", stages, patchLocation);
+        List<PatchMetaState> patchesInFarm = patchMetaStateService.findAllPatchMetaStateForPlayerInRegion(
+                this.getPlayer().getContext().getId(),
+                RunehubUtils.getRegionId(this.getPlayer().getX(), this.getPlayer().getY())
+        );
+
+        List<PatchState> patchStates = patchesInFarm.stream()
+                .map(patchMetaState -> patchStateService.findPatchStateById(patchMetaState.getPatchStateId()))
+                .filter(patchState -> overgrowthOnly ? (patchState.getSeedId() == 0 && patchState.getPatchLocation() == patchLocation) : patchState.getPatchLocation() == patchLocation)
+                .toList();
+
+        patchStates.forEach(patchState -> {
+            PatchMetaState patchMetaState = patchMetaStateService.findPatchMetaStateForPlayerInRegionAtPatch(
+                    this.getPlayer().getContext().getId(),
+                    RunehubUtils.getRegionId(this.getPlayer().getX(), this.getPlayer().getY()),
+                    patchState.getPatchLocation()
+            );
+
+            PatchContext patchContext = buildPatchContext(patchState, patchMetaState);
+            GrowthStrategy strategy = GrowthStrategyFactory.getStrategy(patchContext);
+            strategy.advanceGrowthStage(1);
+
+            updatePatchStateWithPatchContext(patchState, patchContext);
+            updatePatchMetaStateWithPatchContext(patchMetaState, patchContext);
+
+            savePatchState(patchState);
+        });
+
+        updateFarm(RunehubUtils.getRegionId(this.getPlayer().getX(), this.getPlayer().getY()));
+    }
+
+    public void advanceGrowthStage(int stages, int patchLocation) {
+        advanceGrowthStage(stages, patchLocation, false);
+    }
+
+    public PatchContext buildPatchContext(PatchState patchState, PatchMetaState patchMetaState) {
+        PatchContext patchContext = new PatchContext();
+        patchContext.setOccupiedById(patchState.getSeedId());
+        patchContext.setDiseasedState(patchState.getDiseased());
+        patchContext.setWateredState(patchState.getWatered());
+        patchContext.setCurrentGrowthStage(patchState.getGrowthStage());
+        patchContext.setCompostId(patchMetaState.getCompostState());
+        patchContext.setPatchLocationId(patchState.getPatchLocation());
+        patchContext.setPatchProtectedState(patchMetaState.getProtectedState());
+        patchContext.setHarvestTime(patchMetaState.getHarvestTime());
+        patchContext.setPlantTime(patchMetaState.getPlantTime());
+        patchContext.setHarvested(patchMetaState.getHarvestedCount());
+        if (patchState.getSeedId() != 0) {
+            patchContext.setMaturityStage(getCropState(patchState.getSeedId()).getStages());
+            patchContext.setDiseaseChance(getCropState(patchState.getSeedId()).getDiseaseSuccessThreshold());
+        }
+        return patchContext;
+    }
+
+    private void updatePatchStateWithPatchContext(PatchState patchState, PatchContext patchContext) {
+        patchState.setDiseased(patchContext.getDiseasedState());
+        patchState.setWatered(patchContext.getWateredState());
+        patchState.setGrowthStage(patchContext.getCurrentGrowthStage());
+        patchState.setSeedId(patchContext.getOccupiedById());
+    }
+
+    private void updatePatchMetaStateWithPatchContext(PatchMetaState patchMetaState, PatchContext patchContext) {
+        patchMetaState.setCompostState(patchContext.getCompostId());
+        patchMetaState.setProtectedState(patchContext.getPatchProtectedState());
+        patchMetaState.setHarvestTime(patchContext.getHarvestTime());
+        patchMetaState.setPlantTime(patchContext.getPlantTime());
+        patchMetaState.setHarvestedCount(patchContext.getHarvested());
+    }
+
+
+    private void savePatchState(PatchState patchState) {
+        patchStateService.save(patchState);
+    }
+
+    private void savePatchMetaState(PatchMetaState patchMetaState) {
+        patchMetaStateService.save(patchMetaState);
+    }
+
+    public void savePatchContext(PatchContext context) {
+        PatchMetaState patchMetaState = patchMetaStateService.findPatchMetaStateForPlayerInRegionAtPatch(
+                this.getPlayer().getContext().getId(),
+                RunehubUtils.getRegionId(this.getPlayer().getX(), this.getPlayer().getY()),
+                context.getPatchLocationId()
+        );
+        PatchState patchState = patchStateService.findPatchStateById(patchMetaState.getPatchStateId());
+        updatePatchStateWithPatchContext(patchState, context);
+        updatePatchMetaStateWithPatchContext(patchMetaState, context);
+        savePatchState(patchState);
+        savePatchMetaState(patchMetaState);
+    }
+
+    public CropState getCropState(int seedId) {
+        return cropStateService.findBySeedId(seedId);
     }
 
     public void updateFarm(int regionId) {
-        if (this.getPlayer().getContext().getPlayerSaveData().farmingConfig().containsKey(regionId)) {
-            final int varbit = this.getPlayer().getContext().getPlayerSaveData().farmingConfig().get(regionId).stream().mapToInt(FarmingConfig::varbit).sum();
-            System.out.println("Varbit: " + varbit);
-            this.getPlayer().getPA().sendConfig(529, varbit);
+        List<PatchMetaState> patchesInFarm = patchMetaStateService.findAllPatchMetaStateForPlayerInRegion(this.getPlayer().getContext().getId(), regionId);
+        List<PatchState> patchStates = patchesInFarm.stream().map(patchMetaState -> patchStateService.findPatchStateById(patchMetaState.getPatchStateId())).toList();
+        logger.debug("Patches in farm: {}", patchesInFarm);
+        int varbit = 0;
+        switch (regionId) { // We're going to fudge this as well and hardcode the region ids for special cases
+            case 11317: // fruit tree patch in catherby
+                List<Integer> specialPatchVarbits = patchStates.stream().map(this::getVarbitForSpecialCasePatch).toList();
+                varbit = specialPatchVarbits.stream().mapToInt(Integer::intValue).sum();
+                break;
+            default:
+
+                List<Integer> patchVarbits = patchStates.stream().map(this::getVarbitForPatch).toList();
+                varbit = patchVarbits.stream().mapToInt(Integer::intValue).sum();
+
+                break;
         }
+
+        logger.info("Varbit: {}", varbit);
+        this.getPlayer().getPA().sendConfig(529, varbit);
+
+    }
+
+    /**
+     * Special cases like fruit trees and cacti do not follow the standard growth calculations
+     * The varbit for these patches is crop index + growth stage
+     * Diseased/Dead states have their own crop index
+     * To make this as painless as possible we're going to treat the watered/diseased states the same way, but instead of bitshifting we're going to add an offset
+     *
+     * @param patchState
+     * @return
+     */
+    private int getVarbitForSpecialCasePatch(PatchState patchState) {
+        int varbit = 0;
+        if (patchState.getSeedId() != 0) {
+            CropState cropState = cropStateService.findBySeedId(patchState.getSeedId());
+            logger.info("Varbit for special case patch: {}", varbit);
+            int diseasedOffset = patchState.getDiseased() == 1 ?
+                    varbit
+                            + cropState.getStages()
+                            + cropState.getMaturityStages()
+                    : 0;
+            logger.info("Varbit for special case patch with diseased offset: {}", diseasedOffset);
+            int wateredOffset = patchState.getWatered() == 1 ?
+                    diseasedOffset + cropState.getStages()
+                    : 0;
+            logger.info("Varbit for special case patch with watered offset: {}", wateredOffset);
+            varbit = cropState.getCropIndex() + diseasedOffset + wateredOffset + patchState.getGrowthStage();
+            logger.info("Varbit for special case patch with offsets: {}", varbit);
+            return varbit;
+        }
+        return getVarbitForPatch(patchState); //this is for overgrown patches
+    }
+
+    private int getVarbitForPatch(PatchState patchState) {
+        logger.info("Getting varbit for patch: {}", patchState);
+        int varbit = (patchState.getGrowthStage() + (patchState.getWatered() << 6 | patchState.getDiseased() << 7) << patchState.getPatchLocation());
+        if (patchState.getSeedId() != 0)
+            varbit = (cropStateService.findBySeedId(patchState.getSeedId()).getCropIndex()
+                    + patchState.getGrowthStage()
+                    + (patchState.getWatered() << 6 | patchState.getDiseased() << 7) << patchState.getPatchLocation());
+        logger.info("Varbit for patch: {}", varbit);
+        return varbit;
+    }
+
+    private boolean playerHasPatch(long playerId, int regionId, int patchId) {
+        return patchMetaStateService.findPatchMetaStateForPlayerInRegionAtPatch(playerId, regionId, patchId) != null;
+    }
+
+    public PatchMetaState getPatchMetaState(long playerId, int regionId, int patchId) {
+        if (!playerHasPatch(playerId, regionId, patchId)) {
+            return createNewPatchMetaState(playerId, regionId, patchId);
+        }
+        return patchMetaStateService.findPatchMetaStateForPlayerInRegionAtPatch(playerId, regionId, patchId);
+    }
+
+    private PatchMetaState createNewPatchMetaState(long playerId, int regionId, int patchId) {
+        // We must ensure for every patch meta state there is a patch state with the same state id
+        PatchState patchState = new PatchState();
+        patchState.setPatchStateId(IDManager.getUUID());
+        patchState.setPatchLocation(patchId);
+
+        PatchMetaState patchMetaState = new PatchMetaState();
+        patchMetaState.setPlayerId(playerId);
+        patchMetaState.setRegionId(regionId);
+        patchMetaState.setPatchLocation(patchId);
+        patchMetaState.setPatchStateId(patchState.getPatchStateId());
+
+        patchStateService.save(patchState);
+        return patchMetaStateService.save(patchMetaState);
+    }
+
+    public PatchState getPatchState(long playerId, int regionId, int patchId) {
+        return patchStateService.findPatchStateById(getPatchMetaState(playerId, regionId, patchId).getPatchStateId());
+    }
+
+    public int getSeedLevelRequirement(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getLevelRequirement();
+    }
+
+    public int getSeedsRequiredToPlant(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getSeedsPlanted();
+    }
+
+    public int getXPFromPlanting(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getPlantXp();
+    }
+
+    public int getXPFromHarvesting(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getHarvestXp();
+    }
+
+    public int getXPFromCheckingHealth(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getCheckHealthXp();
+    }
+
+    public int getHarvestAmountMinimum(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getHarvestMinimum();
+    }
+
+    public double getBaseHarvestChanceToSave(int seedId) {
+        final CropMeta cropMeta = cropMetaService.findBySeedId(seedId);
+        return getActionSuccessChance(cropMeta.getCtsMin(), cropMeta.getCtsMax());
+    }
+
+    public double getHarvestChanceToSaveWithPower(int seedId) {
+        final CropMeta cropMeta = cropMetaService.findBySeedId(seedId);
+        return getActionSuccessChance((int) (cropMeta.getCtsMin() * this.getPowerBonus()), (int) (cropMeta.getCtsMax() * this.getPowerBonus()));
+    }
+
+    public int getMinimumHarvestAmount(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getHarvestMinimum();
+    }
+
+    public int getHarvestedItemId(int seedId) {
+        return cropMetaService.findBySeedId(seedId).getHarvestedId();
+    }
+
+    public int getCropStateIndex(int seedId) {
+        return cropStateService.findBySeedId(seedId).getCropIndex();
+    }
+
+    public int getHarvestLifeBonus(PatchContext context) {
+        int extraHarvestLives = 0;
+        extraHarvestLives += getHarvestLifeBonusFromCompost(context.getCompostId());
+        return extraHarvestLives;
+    }
+
+    private int getHarvestLifeBonusFromCompost(int compost) {
+        switch (compost) {
+            case COMPOST:
+                return 1;
+            case SUPERCOMPOST:
+                return 2;
+            case ULTRACOMPOST:
+                return 3;
+        }
+        return 0;
     }
 
     @Override
@@ -216,5 +500,14 @@ public class Farming extends GatheringSkill {
 
     public Farming(Player player) {
         super(player);
+        this.patchMetaStateService = new PatchMetaStateServiceImpl(new PatchMetaStateRepositoryImpl());
+        this.patchStateService = new PatchStateServiceImpl(new PatchStateRepositoryImpl());
+        this.cropStateService = new CropStateServiceImpl();
+        this.cropMetaService = new CropMetaServiceImpl();
     }
+
+    private final PatchMetaStateService patchMetaStateService;
+    private final PatchStateService patchStateService;
+    private final CropStateService cropStateService;
+    private final CropMetaService cropMetaService;
 }

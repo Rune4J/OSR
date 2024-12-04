@@ -1,6 +1,6 @@
 package ethos.runehub;
 
-import ethos.runehub.entity.merchant.MerchandiseSlot;
+import ethos.runehub.merchant.MerchandiseSlot;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
 
@@ -10,12 +10,13 @@ import java.util.logging.Level;
 public class RunehubConstants {
 
     public static boolean DEBUG = false;
-    //public static Level DEBUG_LEVEL = Level.INFO;
     public static Level DEBUG_LEVEL = Level.SEVERE;
+
     public static final String ROOT = "./Data/runehub/";
     public static final String DB_ROOT = ROOT + "db/";
     public static final String EXCHANGE_DB = DB_ROOT + "exchange.db";
     public static final String PLAYER_DB = DB_ROOT + "players.db";
+    public static final String RUNE4J = DB_ROOT + "rune4j";
     public static final String UPGRADE_DB = DB_ROOT + "upgrades.db";
     public static final String METRICS_DB = DB_ROOT + "metrics.db";
     public static final String JOURNEY_DB = DB_ROOT + "journey.db";
@@ -34,8 +35,21 @@ public class RunehubConstants {
     public static final String SKILL_DB = DB_ROOT + "skills.db";
     public static final String WORLD_SETTINGS = ROOT + "world-settings.json";
 
+    public static final int WEED_PATCH_GROWTH_TICK_MINUTES = 5;
+    public static final int ALLOTMENT_PATCH_GROWTH_TICK_MINUTES = 10;
+    public static final int HERB_PATCH_GROWTH_TICK_MINUTES = 20;
+    public static final int FLOWER_PATCH_GROWTH_TICK_MINUTES = 5;
+    public static final int BUSH_PATCH_GROWTH_TICK_MINUTES = 20;
+    public static final int TREE_PATCH_GROWTH_TICK_MINUTES = 40;
+    public static final int FRUIT_TREE_PATCH_GROWTH_TICK_MINUTES = 80; // it's 160 in osrs but that's too long even for me
+    public static final int HOPS_PATCH_GROWTH_TICK_MINUTES = 10;
+
 
     public static final Rectangle HOME_TELEPORT_AREA = new Rectangle(new Point(3102,3248),new Point(3106,3251));
+    public static final Rectangle FALADOR_FARM = new Rectangle(new Point(3050, 3303),new Point(3058, 3311));
+    public static final Rectangle CANIFIS_FARM = new Rectangle(new Point(3597, 3521),new Point( 3606, 3530));
+    public static final Rectangle CATHERBY_FARM = new Rectangle(new Point(2805, 3459),new Point(2814, 3468));
+    public static final Rectangle ARDOUGNE_FARM = new Rectangle(new Point(2662, 3370),new Point(2671, 3379));
 
     public static final List<MerchandiseSlot> GENERAL_STORE_ITEMS = new ArrayList<>();
 

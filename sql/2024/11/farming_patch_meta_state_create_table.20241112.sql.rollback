@@ -1,0 +1,4 @@
+drop table if exists farming_patch_meta_state;
+drop index if exists farming_patch_meta_state_player_id_idx;
+drop index if exists farming_patch_meta_state_region_id_idx;
+drop index if exists farming_patch_meta_state_patch_id_idx;

@@ -1,6 +1,5 @@
 package ethos.runehub;
 
-import com.dropbox.core.v1.DbxEntry;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ethos.runehub.db.PlayerCharacterContextDataAccessObject;
@@ -8,7 +7,6 @@ import ethos.util.Misc;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.runehub.api.io.file.Extension;
 import org.runehub.api.io.file.FileRequest;
 import org.runehub.api.io.file.impl.APIFileSystem;
@@ -21,6 +19,28 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class RunehubUtils {
+
+    // Let's return the number of minutes between a system.currentTimeMillis() timestamp and a given timestamp
+    // The given timestamp will always be in the past
+    public static long getMinutesBetween(long timestamp) {
+        // Verify that the timestamp is in the past
+        if (timestamp > System.currentTimeMillis()) {
+            throw new IllegalArgumentException("The timestamp must be in the past");
+        }
+        return (System.currentTimeMillis() - timestamp) / 60000;
+    }
+
+    // Let's return the number of farming growth cycles between a system.currentTimeMillis() timestamp and a given timestamp
+    // The given timestamp will always be in the past
+    public static int getFarmingGrowthCyclesBetween(long timestamp, int growthCycleMinutes) {
+        // Verify that the timestamp is in the past
+        if (timestamp > System.currentTimeMillis()) {
+            throw new IllegalArgumentException("The timestamp must be in the past");
+        }
+
+        // Return the number of growth cycles
+        return (int) ((System.currentTimeMillis() - timestamp) / 60000 / growthCycleMinutes);
+    }
 
     public static String getBooleanAsYesOrNo(boolean value) {
         return value ? "Yes" : "No";

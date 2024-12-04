@@ -1,0 +1,6 @@
+-- Drop crop_index_seed_join table
+DROP TABLE IF EXISTS farming_crop_index_seed_join;
+
+-- Drop indexes
+DROP INDEX IF EXISTS idx_crop_index_seed_join_seed_id;
+DROP INDEX IF EXISTS idx_crop_index_seed_join_crop_index;

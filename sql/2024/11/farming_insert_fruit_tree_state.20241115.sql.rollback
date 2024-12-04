@@ -1,0 +1,2 @@
+DELETE FROM farming_crop_state WHERE seed_id IN (5283,5284,5285,5286,5287,5288,5289) AND crop_index IN (8,35,72,99,136,163,200) AND patch_location = 32;
+

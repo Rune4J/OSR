@@ -1,7 +1,5 @@
 package ethos.runehub.entity.player.action.impl;
 
-import ethos.model.npcs.NPC;
-import ethos.model.npcs.NPCHandler;
 import ethos.model.players.Player;
 import ethos.runehub.RunehubConstants;
 import ethos.runehub.RunehubUtils;
@@ -14,7 +12,6 @@ import ethos.runehub.skill.support.slayer.SlayerAssignmentDAO;
 import ethos.runehub.ui.impl.CharterUI;
 import ethos.runehub.ui.impl.JourneySelectionUI;
 import ethos.runehub.ui.impl.SlayerTaskManagementUI;
-import ethos.util.Misc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,8 +88,8 @@ public class FirstClickDialogueAction extends ClickNPCAction {
                                 })
                         .build());
                 break;
-         //   default:
-               // player.sendMessage(""); //Michael Removed
+            default:
+                player.sendMessage("Submit a bug report with this error code [1]");
         }
     }
 

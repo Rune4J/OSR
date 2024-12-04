@@ -1,0 +1,7 @@
+-- Drop patch_state table
+DROP TABLE IF EXISTS farming_patch_state;
+
+-- Drop patch_state table indexes
+DROP INDEX IF EXISTS patch_state_state_id_idx;
+DROP INDEX IF EXISTS patch_state_patch_group_id_idx;
+DROP INDEX IF EXISTS patch_state_seed_id_idx;

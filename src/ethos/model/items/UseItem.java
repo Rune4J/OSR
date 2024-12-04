@@ -43,6 +43,7 @@ import ethos.runehub.content.job.Job;
 import ethos.runehub.dialog.DialogOption;
 import ethos.runehub.dialog.DialogSequence;
 import ethos.runehub.entity.item.*;
+import ethos.runehub.entity.player.action.impl.node.ItemOnPatchAction;
 import ethos.runehub.skill.gathering.farming.Farming;
 import ethos.runehub.skill.gathering.farming.action.AdvanceGrowthStageAction;
 import ethos.runehub.skill.gathering.farming.action.ApplyCompostAction;
@@ -194,31 +195,7 @@ public class UseItem {
             case 8551:
             case 8550:
             case 7847:
-                if (itemId == Farming.COMPOST || itemId == Farming.SUPERCOMPOST || itemId == Farming.ULTRACOMPOST || itemId == Farming.BOTTOMLESS_COMPOST)
-                    c.getSkillController().getFarming().train(new ApplyCompostAction(c, new ItemInteractionContext(objectX, objectY, 0, itemId, objectID, c.getItems().getItemAmount(itemId), 1)));
-                else if (itemId == 6036)
-                    c.getSkillController().getFarming().train(new ApplyPlantCureAction(c, new ItemInteractionContext(objectX, objectY, 0, itemId, objectID, c.getItems().getItemAmount(itemId), 1)));
-                else if (itemId == 1459) {
-                    c.getDH().sendDialogueSequence(new DialogSequence.DialogSequenceBuilder(c)
-                            .addOptions(new DialogOption("Pay " + RunehubConstants.ADVANCE_PATCH_GROWTH_COST + " Jewels to advance growth stage") {
-                                @Override
-                                public void onAction() {
-                                    c.getSkillController().getFarming().train(new AdvanceGrowthStageAction(c, new ItemInteractionContext(objectX, objectY, 0, itemId, objectID, c.getItems().getItemAmount(itemId), 1)));
-                                    c.getAttributes().getActiveDialogSequence().next();
-                                    c.getPA().closeAllWindows();
-                                }
-                            }, new DialogOption("Nevermind") {
-                                @Override
-                                public void onAction() {
-                                    c.getAttributes().getActiveDialogSequence().next();
-                                    c.getPA().closeAllWindows();
-                                }
-                            })
-                            .build());
-
-                } else
-                    c.getSkillController().getFarming().train(new PlantSeedAction(c, new ItemInteractionContext(objectX, objectY, 0, itemId, objectID, c.getItems().getItemAmount(itemId), 1)));
-
+                c.getAttributes().getActionController().submit(new ItemOnPatchAction(c, new ItemInteractionContext(objectX, objectY, 0, itemId, objectID, c.getItems().getItemAmount(itemId), 1)));
                 break;
             case 16469:
             case 2030: //Allows for ores to be used on the furnace instead of going though the interface.
