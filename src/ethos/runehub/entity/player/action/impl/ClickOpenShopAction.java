@@ -1,7 +1,7 @@
 package ethos.runehub.entity.player.action.impl;
 
 import ethos.model.players.Player;
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 
 public class ClickOpenShopAction extends ClickNPCAction{
 

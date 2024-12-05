@@ -1,6 +1,6 @@
 package ethos.runehub.event.shop.impl;
 
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 import ethos.runehub.event.FixedScheduleEvent;
 
 import java.time.Duration;

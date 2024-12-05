@@ -1,23 +1,66 @@
-<configuration>
-    <!-- Console appender -->
+<configuration debug="true">
+    <!-- Base directory for logs -->
+    <property name="LOG_DIR" value="logs" />
+
+    <!-- Console appender with color coding -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %boldCyan(%-20.-20thread) %red(%10.10X{jda.shard}) %boldGreen(%-25.-25logger{0}) %highlight(%-6level) %msg%n</pattern>
+            <pattern>
+                %d{HH:mm:ss.SSS}
+                %cyan([%thread])
+                %highlight(%-5level)
+                %magenta(%logger{36}) -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
 
-    <!-- File appender -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/app.log</file>
-        <append>true</append>
+    <!-- General rolling file appender -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Correct directory structure and file naming -->
+            <fileNamePattern>${LOG_DIR}/%d{yyyy/MM}/app-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- Retain logs for 30 days -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Rolling file appender for command logs -->
+    <appender name="COMMAND_LOGS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/%d{yyyy/MM}/command-log-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DROP_LOGS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/%d{yyyy/MM}/drop-log-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <!-- Root logger configuration -->
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="CONSOLE" />
-        <appender-ref ref="FILE" />
+        <appender-ref ref="ROLLING_FILE" />
     </root>
+
+<!--    TODO Add Logger configuration for commands-->
+    <logger name="com.example.special" level="info">
+        <appender-ref ref="COMMAND_LOGS" />
+    </logger>
+
+    <!--    TODO Add Logger configuration for drops-->
+    <logger name="com.example.special" level="info">
+        <appender-ref ref="DROP_LOGS" />
+    </logger>
 </configuration>

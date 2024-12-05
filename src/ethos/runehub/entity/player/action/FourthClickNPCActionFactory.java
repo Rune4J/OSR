@@ -1,7 +1,6 @@
 package ethos.runehub.entity.player.action;
 
 import ethos.model.players.Player;
-import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.impl.ClickNPCAction;
 import ethos.runehub.ui.impl.SlayerKnowledgeRewardUI;
 

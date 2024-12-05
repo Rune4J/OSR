@@ -5,7 +5,7 @@ import ethos.model.content.tradingpost.Listing;
 import ethos.model.players.Player;
 import ethos.model.players.Right;
 import ethos.runehub.action.click.node.SecondClickNodeActionListener;
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.SecondClickNodeActionFactory;
 import ethos.runehub.entity.player.action.ThirdClickNodeActionFactory;
 

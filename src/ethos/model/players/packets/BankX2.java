@@ -19,7 +19,7 @@ import ethos.model.players.PacketType;
 import ethos.model.players.Player;
 import ethos.model.players.PlayerHandler;
 import ethos.model.players.skills.TabletCreation;
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 import ethos.runehub.skill.combat.prayer.action.SacrificeRemainsOnAltarAction;
 import ethos.runehub.world.WorldSettingsController;
 

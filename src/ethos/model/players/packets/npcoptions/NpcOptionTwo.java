@@ -19,7 +19,7 @@ import ethos.model.players.skills.Fishing;
 import ethos.model.players.skills.agility.AgilityHandler;
 import ethos.model.players.skills.thieving.Thieving.Pickpocket;
 import ethos.runehub.entity.CommodityTrader;
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.FirstClickNPCActionFactory;
 import ethos.runehub.entity.player.action.SecondClickNPCActionFactory;
 

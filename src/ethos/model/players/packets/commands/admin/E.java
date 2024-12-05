@@ -6,16 +6,6 @@ import ethos.model.players.Player;
 import ethos.model.players.packets.commands.Command;
 import ethos.model.players.packets.commands.owner.Object;
 import ethos.runehub.RunehubUtils;
-import ethos.runehub.entity.merchant.MerchantCache;
-import ethos.runehub.skill.gathering.woodcutting.action.ActiveWoodcuttingSkillAction;
-import ethos.runehub.skill.support.sailing.Sailing;
-import ethos.runehub.skill.support.sailing.ship.Ship;
-import ethos.runehub.ui.impl.ItemUpgradeUI;
-import ethos.runehub.ui.impl.PlayPassHiscoreUI;
-import ethos.runehub.world.WorldController;
-import ethos.world.objects.GlobalObject;
-import ethos.world.objects.GlobalObjects;
-import org.runehub.api.model.world.region.location.Location;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
 

@@ -3,7 +3,7 @@ package ethos.runehub.event.shop;
 import ethos.event.Event;
 import ethos.model.npcs.NPC;
 import ethos.model.npcs.NPCHandler;
-import ethos.runehub.entity.merchant.Merchant;
+import ethos.runehub.merchant.Merchant;
 import ethos.runehub.skill.artisan.ArtisanSkillItemReaction;
 import org.runehub.api.model.world.region.location.Location;
 

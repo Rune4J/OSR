@@ -3,7 +3,7 @@ package ethos.runehub.event;
 import ethos.model.players.PlayerHandler;
 import ethos.runehub.TimeUtils;
 import ethos.runehub.db.PlayerCharacterContextDataAccessObject;
-import ethos.runehub.entity.merchant.impl.exchange.ExchangePriceController;
+import ethos.runehub.merchant.impl.exchange.ExchangePriceController;
 import ethos.runehub.event.chest.PromotionalChestEventImpl;
 import ethos.runehub.event.dnd.WeekendBonusFixedScheduleEvent;
 import ethos.runehub.world.MembershipController;

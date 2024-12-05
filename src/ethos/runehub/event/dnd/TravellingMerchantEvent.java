@@ -2,7 +2,7 @@ package ethos.runehub.event.dnd;
 
 import ethos.model.npcs.NPC;
 import ethos.model.npcs.NPCHandler;
-import ethos.runehub.entity.merchant.Merchant;
+import ethos.runehub.merchant.Merchant;
 import ethos.runehub.event.FixedScheduleEvent;
 import org.runehub.api.model.world.region.location.Location;
 

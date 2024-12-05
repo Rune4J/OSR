@@ -7,7 +7,7 @@ import ethos.runehub.TimeUtils;
 import ethos.runehub.dialog.DialogOption;
 import ethos.runehub.dialog.DialogSequence;
 import ethos.runehub.entity.item.GameItem;
-import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.merchant.MerchantCache;
 import ethos.runehub.skill.support.sailing.SailingController;
 import ethos.runehub.skill.support.sailing.SailingUtils;
 import ethos.runehub.skill.support.sailing.ship.Ship;

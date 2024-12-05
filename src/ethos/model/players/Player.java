@@ -1947,13 +1947,8 @@ public class Player extends Entity implements PlayerCharacterEntity {
             
 
             sendMessage("Welcome to " + Config.SERVER_NAME + "."); // welcome message - michae;
-            System.out.println("First farm tick is in " + TimeUtils.getDurationString(TimeUtils.getDurationBetween(System.currentTimeMillis(), FixedScheduledEventController.getInstance().getNextCycle(FixedScheduledEventController.getInstance().getFixedScheduleEvents()[10]).toInstant().toEpochMilli()).toMillis()));
             this.initializeDailyContent();
             getPA().showInterface(54000);
-//            this.getAttributes().getFarmTickExecutorService().scheduleAtFixedRate(() ->
-//                            new FarmTick(this),
-//                    TimeUtils.getDurationBetween(System.currentTimeMillis(), FixedScheduledEventController.getInstance().getNextCycle(FixedScheduledEventController.getInstance().getFixedScheduleEvents()[10]).toInstant().toEpochMilli()).toMillis(),
-//                    Duration.ofMinutes(5).toMillis(), TimeUnit.MILLISECONDS);
             WorldSettingsController.getInstance().initializeTimers(this);
             sendMessage("^Membership You have $" + MembershipController.getInstance().getDaysOfMembershipRemainingAsString(context) + " days of membership remaining.");
 //            Membership.checkDate(this);
@@ -1967,8 +1962,6 @@ public class Player extends Entity implements PlayerCharacterEntity {
             }
 
             getPA().handleLoginText();
-            getPA().loadQuests();
-            // checkWellOfGoodwillTimers();
 
 
             if (getRightGroup().isOrInherits(Right.IRONMAN)) {
@@ -2036,10 +2029,6 @@ public class Player extends Entity implements PlayerCharacterEntity {
                 PlayerHandler.executeGlobalMessage("^Staff @blu@" + Misc.formatPlayerName(this.playerName) + "@bla@ has logged on.");
             }
 
-            //if (!Config.local) {
-            //	PlayersOnline.createCon();
-            //	PlayersOnline.online(this);
-            //}
             combatLevel = calculateCombatLevel();
             outStream.createFrame(249);
             outStream.writeByteA(1); // 1 for members, zero for free
@@ -2160,32 +2149,7 @@ public class Player extends Entity implements PlayerCharacterEntity {
             getPA().resetFollow();
             getPA().setClanData();
             updateRank();
-
-//            if (!startPack) {
-//
-////                getRightGroup().remove(Right.IRONMAN);
-////                getRightGroup().remove(Right.ULTIMATE_IRONMAN);
-//                startPack = true;
-//                Server.clanManager.getHelpClan().addMember(this);
-////                tutorial.setStage(Stage.START);
-//                mode = Mode.forType(ModeType.REGULAR);
-////                this.getDH().sendDialogueSequence(new DialogSequence.DialogSequenceBuilder(this)
-////                        .setMovementRestricted(true)
-////                        .addNpcChat(3308, "Hello there! Welcome to Draynor.", "Have I seen you before?")
-////                        .addOptions(1, "Yes", "No")
-////                        .build()
-////                );
-//            } else {
-//                if (mode == null && tutorial.getStage() == null) {
-//                    mode = Mode.forType(ModeType.REGULAR);
-////                    tutorial.autoComplete();
-//                }
                Server.clanManager.joinOnLogin(this);
-//            }
-//            getDL().LoggedIn();
-//            if (tutorial.isActive()) {
-//                tutorial.refresh();
-//            }
             if (autoRet == 1)
                 getPA().sendFrame36(172, 1);
             else
