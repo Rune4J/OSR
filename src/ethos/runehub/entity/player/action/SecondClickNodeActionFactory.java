@@ -6,7 +6,7 @@ import ethos.runehub.entity.player.action.impl.node.ClickNodeAction;
 import ethos.runehub.entity.player.action.impl.node.SecondClickFarmingPatchAction;
 import ethos.runehub.entity.player.action.impl.node.SecondClickFishingSpotAction;
 import ethos.runehub.entity.player.action.impl.node.SecondClickSkillStationAction;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 
 import java.util.logging.Logger;
 

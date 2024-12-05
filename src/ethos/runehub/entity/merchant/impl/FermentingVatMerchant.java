@@ -1,11 +1,12 @@
-package ethos.runehub.skill.support.sailing.merchant;
+package ethos.runehub.entity.merchant.impl;
 
 import ethos.model.players.Player;
 import ethos.runehub.entity.item.GameItem;
 import ethos.runehub.entity.merchant.MerchandiseSlot;
 import ethos.runehub.entity.merchant.Merchant;
+import ethos.runehub.entity.player.IdleBrewingStation;
+import ethos.runehub.entity.player.IdleBrewingStationDAO;
 import org.runehub.api.io.load.impl.ItemIdContextLoader;
-import org.runehub.api.model.entity.item.ItemContext;
 import org.runehub.api.model.math.impl.AdjustableInteger;
 
 import java.util.ArrayList;
@@ -13,33 +14,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SailingStockpileMerchant extends Merchant {
+public class FermentingVatMerchant extends Merchant {
 
     @Override
     public void openShop(Player player) {
+        if (IdleBrewingStationDAO.getInstance().read(player.getContext().getId()) == null)
+            IdleBrewingStationDAO.getInstance().create(new IdleBrewingStation(
+                    player.getContext().getId(),
+                    new ArrayList<>()
+            ));
         this.initializeMerchandiseForPlayer(player);
+        player.getSkillController().addImmutableXP(7,player.getContext().getPlayerSaveData().getIdleBrewedXp());
+        player.getContext().getPlayerSaveData().setIdleBrewedXp(0);
         super.openShop(player);
     }
 
     @Override
     public String getPriceForItemBeingSoldToShop(int itemId) {
         if (this.getBuyBackIds().contains(itemId) || (ItemIdContextLoader.getInstance().read(itemId).isNoted() && this.getBuyBackIds().contains(ItemIdContextLoader.getInstance().read(itemId).getLinkedId())))
-            return "These can be added to the stockpile";
-        return "These are not valid trade goods";
+            return "These can be added to the fermenting vat.";
+        return "The fermenting vat can't use this.";
     }
 
     @Override
     public boolean buyItemFromPlayer(int itemId, int amount, int slot, Player player) {
-        if (this.getBuyBackIds().contains(itemId) || this.getBuyBackIds().isEmpty()) {
+        if (this.getBuyBackIds().contains(itemId)) {
             if (player.getItems().playerHasItem(itemId, amount)) {
-                ItemContext context = ItemIdContextLoader.getInstance().read(itemId);
-                int itemIdToAdd = context.isNoted() ? context.getLinkedId() : itemId;
                 player.getItems().deleteItem2(itemId, amount);
                 player.getItems().resetItems(3823);
-                player.sendMessage("You add your #" + amount + " @" + itemId + " to the stockpile.");
-                this.updateStock(itemIdToAdd, amount);
+                player.sendMessage("You add your #" + amount + " @" + itemId + " to the fermenting vat.");
+                this.updateStock(itemId, amount);
                 this.updateShop(player);
-                this.updateDatabase(player, itemIdToAdd, amount,true);
+                this.updateDatabaseBuying(player,itemId,amount);
                 return true;
             } else {
                 player.sendMessage("You can't sell what you don't have.");
@@ -53,11 +59,9 @@ public class SailingStockpileMerchant extends Merchant {
     @Override
     public boolean sellItemToPlayer(int itemId, int amount, int slot, Player player) {
         if (amount <= this.getMerchandise().get(slot).getAmount()) {
-            if (player.getItems().freeSlots() > (ItemIdContextLoader.getInstance().read(itemId).isStackable() ? 0 : amount)
-                    || ItemIdContextLoader.getInstance().read(itemId).isNoteable()) {
-                ItemContext context = ItemIdContextLoader.getInstance().read(itemId);
+            if (player.getItems().freeSlots() > (ItemIdContextLoader.getInstance().read(itemId).isStackable() ? 0 : amount)) {
                 if (ItemIdContextLoader.getInstance().read(itemId).isNoteable()) {
-                    player.getItems().addItem(context.getLinkedIdNoted(), amount);
+                    player.getItems().addItem(itemId + 1, amount);
                 } else {
                     player.getItems().addItem(itemId, amount);
                 }
@@ -65,7 +69,7 @@ public class SailingStockpileMerchant extends Merchant {
                 player.sendMessage("You collected #" + amount + " @" + itemId);
                 this.getMerchandiseSlot(itemId).setAmount(this.getMerchandiseSlot(itemId).getAmount() - amount);
                 this.updateShop(player);
-                this.updateDatabase(player, itemId, amount,false);
+                this.updateDatabaseSelling(player, itemId, amount);
                 return true;
             } else {
                 player.sendMessage("You do not have enough inventory space.");
@@ -77,16 +81,8 @@ public class SailingStockpileMerchant extends Merchant {
     protected void initializeMerchandiseForPlayer(Player player) {
         this.getMerchandise().clear();
         final Map<Integer, AdjustableInteger> itemMap = new HashMap<>();
-        long[] encodedCargo = player.getSailingSaveData().getCargo();
-        List<GameItem> items = new ArrayList<>();
 
-        for (long l : encodedCargo) {
-            GameItem cargo = GameItem.decodeGameItem(l);
-            if (cargo.getId() != 0) {
-                System.out.println("Loading item: " + cargo);
-                items.add(cargo);
-            }
-        }
+        List<GameItem> items = player.getContext().getPlayerSaveData().getIdleBrewingStation();
         items.forEach(gameItem -> {
             if (itemMap.containsKey(gameItem.getId())) {
                 itemMap.get(gameItem.getId()).add(gameItem.getAmount());
@@ -105,7 +101,8 @@ public class SailingStockpileMerchant extends Merchant {
         });
     }
 
-    private List<GameItem> updateDatabaseSelling(List<GameItem> items, int itemId, int amount) {
+    private void updateDatabaseSelling(Player player, int itemId, int amount) {
+        List<GameItem> items = player.getContext().getPlayerSaveData().getIdleBrewingStation();
         items
                 .stream()
                 .filter(item -> item.getId() == itemId)
@@ -113,41 +110,15 @@ public class SailingStockpileMerchant extends Merchant {
                 .ifPresentOrElse(
                         item -> item.setAmount(item.getAmount() - amount),
                         () -> {
-                            items.add(new GameItem(itemId, amount));
+                            items.add(new GameItem(itemId,amount));
                         }
                 );
-        return items;
+
+        player.save();
     }
 
-    private void updateDatabase(Player player, int itemId, int amount,boolean buying) {
-        long[] encodedCargo = player.getSailingSaveData().getCargo();
-        List<GameItem> items = new ArrayList<>();
-
-        //converts the stored longs to GameItem objects and adds them to the list
-        for (long l : encodedCargo) {
-            GameItem cargo = GameItem.decodeGameItem(l);
-            if (cargo.getId() != 0)
-                items.add(cargo);
-        }
-
-        if (buying) {
-            updateDatabaseBuying(items, itemId, amount);
-        } else {
-            updateDatabaseSelling(items, itemId, amount);
-        }
-
-        for (int i = 0; i < items.size(); i++) {
-            GameItem item = items.get(i);
-            if (item.getAmount() > 0) {
-                player.getSailingSaveData().setCargo(i, items.get(i).encodeGameItem());
-            } else {
-                player.getSailingSaveData().setCargo(i, new GameItem(0, 0).encodeGameItem());
-            }
-        }
-
-    }
-
-    private List<GameItem> updateDatabaseBuying(List<GameItem> items, int itemId, int amount) {
+    private void updateDatabaseBuying(Player player, int itemId, int amount) {
+        List<GameItem> items = player.getContext().getPlayerSaveData().getIdleBrewingStation();
         items
                 .stream()
                 .filter(item -> item.getId() == itemId)
@@ -155,13 +126,15 @@ public class SailingStockpileMerchant extends Merchant {
                 .ifPresentOrElse(
                         item -> item.setAmount(item.getAmount() + amount),
                         () -> {
-                            items.add(new GameItem(itemId, amount));
+                            items.add(new GameItem(itemId,amount));
                         }
                 );
-        return items;
+
+        player.save();
     }
 
-    public SailingStockpileMerchant() {
-        super(new ArrayList<>(), 995, 50002, "Stockpile", -1, new ArrayList<>());
+    public FermentingVatMerchant() {
+        super(new ArrayList<>(),995, 7528, "Fermenting Vat", -1, List.of(1929, 6008, 8988,
+                1919, 5992, 5994, 5996, 255, 5998, 6000, 6004, 6043, 1975, 6002,5767));
     }
 }

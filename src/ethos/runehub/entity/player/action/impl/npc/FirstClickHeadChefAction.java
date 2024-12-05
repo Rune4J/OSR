@@ -6,7 +6,7 @@ import ethos.runehub.content.job.JobUtils;
 import ethos.runehub.dialog.Dialog;
 import ethos.runehub.dialog.DialogOption;
 import ethos.runehub.dialog.DialogSequence;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.impl.ClickNPCAction;
 import org.runehub.api.io.load.impl.ItemIdContextLoader;
 import org.runehub.api.util.SkillDictionary;

@@ -3,9 +3,8 @@ package ethos.runehub.entity.player.action;
 import ethos.model.players.Player;
 import ethos.runehub.entity.player.action.impl.ClickNPCAction;
 import ethos.runehub.entity.player.action.impl.ClickOpenShopAction;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.skill.support.thieving.action.PickpocketAction;
-import ethos.runehub.ui.impl.SlayerKnowledgeRewardUI;
 
 import java.util.logging.Logger;
 

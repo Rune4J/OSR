@@ -1,13 +1,10 @@
 package ethos.runehub.event.shop.impl;
 
 import ethos.Server;
-import ethos.clip.Region;
-import ethos.model.npcs.NPC;
-import ethos.model.npcs.NPCHandler;
 import ethos.model.players.PlayerHandler;
-import ethos.runehub.merchant.MerchantCache;
-import ethos.runehub.merchant.impl.CommodityMerchant;
-import ethos.runehub.merchant.impl.RotatingStockMerchant;
+import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.impl.CommodityMerchant;
+import ethos.runehub.entity.merchant.impl.RotatingStockMerchant;
 import ethos.runehub.event.shop.TravellingMerchantEvent;
 import ethos.world.objects.GlobalObject;
 import org.runehub.api.model.world.region.location.Location;

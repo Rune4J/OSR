@@ -1,10 +1,8 @@
 package ethos.runehub.skill.support.sailing.merchant;
 
 import ethos.model.players.Player;
-import ethos.runehub.entity.item.GameItem;
-import ethos.runehub.merchant.MerchandiseSlot;
-import ethos.runehub.merchant.Merchant;
-import ethos.runehub.skill.support.sailing.SailingUtils;
+import ethos.runehub.entity.merchant.MerchandiseSlot;
+import ethos.runehub.entity.merchant.Merchant;
 import ethos.runehub.skill.support.sailing.voyage.TradeGood;
 import org.runehub.api.io.load.impl.ItemIdContextLoader;
 import org.runehub.api.model.math.impl.AdjustableInteger;

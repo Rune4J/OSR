@@ -15,7 +15,7 @@ import ethos.model.players.PacketType;
 import ethos.model.players.Player;
 import ethos.model.players.skills.Smithing;
 import ethos.model.players.skills.crafting.JewelryMaking;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 
 /**
  * Bank 5 Items

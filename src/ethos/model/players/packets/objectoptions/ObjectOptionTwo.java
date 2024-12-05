@@ -9,7 +9,7 @@ import ethos.model.players.skills.FlaxPicking;
 import ethos.model.players.skills.necromancy.Necromancy;
 import ethos.model.players.skills.thieving.Thieving.Stall;
 import ethos.runehub.action.click.node.SecondClickNodeActionListener;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.SecondClickNodeActionFactory;
 import ethos.util.Location3D;
 import ethos.util.Misc;

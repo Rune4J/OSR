@@ -2,11 +2,10 @@ package ethos.runehub.ui.impl.tab.player;
 
 import ethos.model.players.Player;
 import ethos.runehub.TimeUtils;
-import ethos.runehub.merchant.MerchantCache;
-import ethos.runehub.merchant.impl.CommodityMerchant;
+import ethos.runehub.entity.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.impl.CommodityMerchant;
 import ethos.runehub.event.FixedScheduledEventController;
 import ethos.runehub.ui.component.impl.TextComponent;
-import ethos.runehub.world.WorldSettingsController;
 
 import java.util.Arrays;
 

@@ -1,6 +1,6 @@
 package ethos.runehub;
 
-import ethos.runehub.merchant.MerchandiseSlot;
+import ethos.runehub.entity.merchant.MerchandiseSlot;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
 

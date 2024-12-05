@@ -8,7 +8,6 @@ import ethos.model.content.achievement_diary.karamja.KaramjaDiaryEntry;
 import ethos.model.content.achievement_diary.lumbridge_draynor.LumbridgeDraynorDiaryEntry;
 import ethos.model.content.achievement_diary.varrock.VarrockDiaryEntry;
 import ethos.model.content.achievement_diary.wilderness.WildernessDiaryEntry;
-import ethos.model.npcs.NPCHandler;
 import ethos.model.npcs.pets.PetHandler;
 import ethos.model.npcs.pets.Probita;
 import ethos.model.players.Boundary;
@@ -17,10 +16,7 @@ import ethos.model.players.PlayerAssistant;
 import ethos.model.players.PlayerAssistant.PointExchange;
 import ethos.model.players.skills.Fishing;
 import ethos.model.players.skills.agility.AgilityHandler;
-import ethos.model.players.skills.thieving.Thieving.Pickpocket;
-import ethos.runehub.entity.CommodityTrader;
-import ethos.runehub.merchant.MerchantCache;
-import ethos.runehub.entity.player.action.FirstClickNPCActionFactory;
+import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.entity.player.action.SecondClickNPCActionFactory;
 
 /*

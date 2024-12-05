@@ -2,7 +2,7 @@ package ethos.runehub.skill.support.sailing.ui;
 
 import ethos.model.players.Player;
 import ethos.runehub.entity.item.GameItem;
-import ethos.runehub.merchant.MerchantCache;
+import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.skill.support.sailing.SailingUtils;
 import ethos.runehub.skill.support.sailing.ship.Ship;
 import ethos.runehub.skill.support.sailing.voyage.TradeGood;
