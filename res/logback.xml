@@ -60,7 +60,7 @@
     </logger>
 
     <!--    TODO Add Logger configuration for drops-->
-    <logger name="com.example.special" level="info">
+    <logger name="ethos." level="info">
         <appender-ref ref="DROP_LOGS" />
     </logger>
 </configuration>

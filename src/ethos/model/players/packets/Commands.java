@@ -29,11 +29,15 @@ import ethos.punishments.Punishments;
 import ethos.util.Misc;
 import ethos.util.log.PlayerLogging;
 import ethos.util.log.PlayerLogging.LogType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Commands
  **/
 public class Commands implements PacketType {
+
+	private static final Logger logger = LoggerFactory.getLogger(Commands.class);
 
 	public final String NO_ACCESS = "You do not have the right.";
 
@@ -58,6 +62,7 @@ public class Commands implements PacketType {
 				initialize(path);
 			}
 			COMMAND_MAP.get(path).execute(c, commandInput);
+            logger.info("Player {} used command {} with input {}", c.playerName, playerCommand, commandInput);
 			return true;
 		} catch (ClassNotFoundException e) {
 			return false;
@@ -95,6 +100,7 @@ public class Commands implements PacketType {
 	@Override
 	public void processPacket(Player c, int packetType, int packetSize) {
 		String playerCommand = c.getInStream().readString();
+		logger.info("Player {} used command {}", c.playerName, playerCommand);
 		if (c.getInterfaceEvent().isActive()) {
 			c.sendMessage("Please finish what you're doing.");
 			return;
