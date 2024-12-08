@@ -1,6 +1,7 @@
 package ethos.runehub.entity.item;
 
 
+import ethos.runehub.RunehubConstants;
 import ethos.runehub.skill.artisan.ArtisanSkillItemReaction;
 import org.runehub.api.io.data.impl.beta.BetaAbstractDataAcessObject;
 
@@ -15,6 +16,6 @@ public class ArtisanSkillItemReactionDAO extends BetaAbstractDataAcessObject<Art
     }
 
     private ArtisanSkillItemReactionDAO() {
-        super("C:\\Users\\quint\\Desktop\\Work\\Projects\\Games\\rsps\\OS-Revolution\\Server\\Data\\runehub\\db\\item-interactions.db", ArtisanSkillItemReaction.class);
+        super(RunehubConstants.ITEM_INTERACTION_DB, ArtisanSkillItemReaction.class);
     }
 }
