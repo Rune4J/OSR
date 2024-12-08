@@ -130,16 +130,6 @@ public class ClickingButtons implements PacketType {
 
         c.getAttributes().getActionDispatcher().dispatch(actionButtonId);
 
-        
-        
-        
-        
-        
-        
-        //stop
-
-        c.getAttributes().getActionDispatcher().dispatch(actionButtonId);
-
 //        if (c.getAttributes().getActiveUI() != null || c.getAttributes().getTabUI() != null) {
 //            if (c.getAttributes().getActiveUI() != null)
 //                c.getAttributes().getActiveUI().action(actionButtonId);
