@@ -111,8 +111,8 @@ public class SkillController {
     private int getXPWithModifiers(int skill, int baseAmount) {
         if (this.getSkill(skill) == null) {
             logger.error("No skill found for ID: {}", skill);
-            throw new NullPointerException("No skill found for ID: " + skill);
-//            return baseAmount;
+//            throw new NullPointerException("No skill found for ID: " + skill);
+            return baseAmount;
         }
         int amount = baseAmount;
         if (player.getContext().getPlayerSaveData().getBonusXp().containsKey(skill)) {
