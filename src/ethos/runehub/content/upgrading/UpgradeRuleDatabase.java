@@ -47,11 +47,11 @@ public class UpgradeRuleDatabase {
             // Build the query based on the provided parameters
             String query = "SELECT * FROM " + TABLE_NAME;
             if (sourceId != -1 && upgradeId != -1) {
-                query += " WHERE source_item_id = ? AND upgraded_item_id = ?";
+                query += " WHERE source_item_id = ? AND upgrade_item_id = ?";
             } else if (sourceId != -1) {
                 query += " WHERE source_item_id = ?";
             } else if (upgradeId != -1) {
-                query += " WHERE upgraded_item_id = ?";
+                query += " WHERE upgrade_item_id = ?";
             }
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -67,11 +67,11 @@ public class UpgradeRuleDatabase {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         int retrievedSourceId = resultSet.getInt("source_item_id");
-                        int retrievedUpgradeId = resultSet.getInt("upgraded_item_id");
+                        int retrievedUpgradeId = resultSet.getInt("upgrade_item_id");
                         int sourceItemAmount = resultSet.getInt("source_item_amount");
-                        int upgradedItemAmount = resultSet.getInt("upgraded_item_amount");
+                        int upgradedItemAmount = resultSet.getInt("upgrade_item_amount");
                         int upgradePointCost = resultSet.getInt("upgrade_point_cost");
-                        boolean members = resultSet.getBoolean("members");
+                        boolean members = resultSet.getBoolean("members_only");
                         float baseSuccessChance = resultSet.getFloat("base_success_chance");
                         float baseConsumeChance = resultSet.getFloat("base_consume_chance");
                         float baseUpgradeChanceIncrease = resultSet.getFloat("base_upgrade_chance_increase");
@@ -105,13 +105,13 @@ public class UpgradeRuleDatabase {
 
     private void createTable(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, source_item_id INTEGER, source_item_amount INTEGER, upgraded_item_id INTEGER, upgraded_item_amount INTEGER, upgrade_point_cost INTEGER, members BOOLEAN, base_success_chance REAL, base_consume_chance REAL, base_upgrade_chance_increase REAL, base_upgrade_cost_increase REAL)");
+            statement.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT, source_item_id INTEGER, source_item_amount INTEGER, upgrade_item_id INTEGER, upgrade_item_amount INTEGER, upgrade_point_cost INTEGER, members_only BOOLEAN, base_success_chance REAL, base_consume_chance REAL, base_upgrade_chance_increase REAL, base_upgrade_cost_increase REAL)");
         }
     }
 
 
     private void insertUpgradeRule(Connection connection, UpgradeRule upgradeRule) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + TABLE_NAME + " (source_item_id, source_item_amount, upgraded_item_id, upgraded_item_amount, upgrade_point_cost, members, base_success_chance, base_consume_chance, base_upgrade_chance_increase, base_upgrade_cost_increase) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + TABLE_NAME + " (source_item_id, source_item_amount, upgrade_item_id, upgrade_item_amount, upgrade_point_cost, members_only, base_success_chance, base_consume_chance, base_upgrade_chance_increase, base_upgrade_cost_increase) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
             preparedStatement.setInt(1, upgradeRule.getSourceItemId());
             preparedStatement.setInt(2, upgradeRule.getSourceItemAmount());
             preparedStatement.setInt(3, upgradeRule.getUpgradedItemId());
@@ -130,7 +130,7 @@ public class UpgradeRuleDatabase {
 
 
     private UpgradeRuleDatabase() {
-        this.databaseLocation = RunehubConstants.UPGRADE_DB;
+        this.databaseLocation = RunehubConstants.RUNE4J;
         this.memCache = new MobKill[200];
     }
 
