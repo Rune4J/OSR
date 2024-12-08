@@ -399,10 +399,29 @@ public class PlayerCharacterAttribute extends CharacterEntityAttribute {
         this.targetedMobIndex = targetedMobIndex;
     }
 
+    public int getLastKilledMobId() {
+        return lastKilledMobId;
+    }
+
+    public void setLastKilledMobId(int lastKilledMobId) {
+        this.lastKilledMobId = lastKilledMobId;
+    }
+
+    public int getSameTypeMobKills() {
+        return sameTypeMobKills;
+    }
+
+    public void setSameTypeMobKills(int sameTypeMobKills) {
+        this.sameTypeMobKills = sameTypeMobKills;
+    }
+
     @Override
     public Player getOwner() {
         return (Player) super.getOwner();
     }
+
+    private int lastKilledMobId;
+    private int sameTypeMobKills;
 
     private boolean movementResricted, actionLocked, enteringValue, usingStar, inRift;
     private float magicFind, teleportRechargeReduction;

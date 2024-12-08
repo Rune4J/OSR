@@ -854,16 +854,16 @@ public class NPC extends Entity implements NonPlayableCharacter {
         handleOtherDeathMechanics(player);
     }
 
-    private void givePvMPoints(Player killer) {
-        int basePointValue = Math.max(1,this.getHealth().getMaximum() / 25);
-        double levelBonus = RunehubUtils.calculatePercentageOver(HostileMobIdContextLoader.getInstance().read(npcType).getCombatLevel(),killer.combatLevel);
-        int finalPointValue = (int) Math.min(50,Math.max(1,basePointValue * levelBonus));
-        if (WorldSettingsController.getInstance().getWorldSettings().getWeekendEventId() == 6) {
-            finalPointValue *= 2;
-        }
-        killer.getAttributes().getPointController().addPoints(PointController.PointType.PVM,finalPointValue);
-
-    }
+//    private void givePvMPoints(Player killer) {
+//        int basePointValue = Math.max(1,this.getHealth().getMaximum() / 25);
+//        double levelBonus = RunehubUtils.calculatePercentageOver(HostileMobIdContextLoader.getInstance().read(npcType).getCombatLevel(),killer.combatLevel);
+//        int finalPointValue = (int) Math.min(50,Math.max(1,basePointValue * levelBonus));
+//        if (WorldSettingsController.getInstance().getWorldSettings().getWeekendEventId() == 6) {
+//            finalPointValue *= 2;
+//        }
+//        killer.getAttributes().getPointController().addPoints(PointController.PointType.PVM,finalPointValue);
+//
+//    }
 
     private void handleOtherDeathMechanics(Player killer) {
         MobKillDatabase.getInstance().storeKill(
@@ -872,7 +872,14 @@ public class NPC extends Entity implements NonPlayableCharacter {
 //        System.out.println("There are " + (long) MobKillDatabase.getInstance().read(-1, npcType).size() + " recorded kills on this mob");
 //        System.out.println("There are " + (long) MobKillDatabase.getInstance().read(killer.getContext().getId(), -1).size() + " recorded kills by this player");
 //        System.out.println("There are " + (long) MobKillDatabase.getInstance().read(killer.getContext().getId(), npcType).size() + " recorded kills on this mob by this player");
-        givePvMPoints(killer);
+        // TODO - Move this out of Server at some point
+        killer.getAttributes().setLastKilledMobId(npcType);
+        if (killer.getAttributes().getLastKilledMobId() == npcType) {
+            killer.getAttributes().setSameTypeMobKills(killer.getAttributes().getSameTypeMobKills() + 1);
+        } else {
+            killer.getAttributes().setSameTypeMobKills(0);
+        }
+        Server.getPvmPointCalculator().awardPoints(killer,this);
     }
 
 

@@ -24,20 +24,16 @@ public class CreateGroundItemEvent extends Event<GroundItem> {
     public void initialize() {
         super.initialize();
         if (owner != null) { //checks if the owner is non-null
-            System.out.println("Spawning for owner");
             createItemForPlayer(owner);//creates the item for just the owner
         } else {
-            System.out.println("Spawning for all");
             this.getNearbyPlayers().forEach(this::createItemForPlayer); //this makes the item visible to all nearby players
         }
     }
     @Override
     public void execute() {
         if (elapsed == CYCLE_RATE && Server.itemHandler.itemExists(attachment)) { //this checks if the event is half over
-            System.out.println("Making item public");
             this.getNearbyPlayers().forEach(this::createItemForPlayer); //this makes the item visible to all nearby players
         } else { //this will only be true when the event executes the second time
-            System.out.println("Stopping event");
             this.stop(); //stops the event and removes the ground item
         }
     }
@@ -57,7 +53,6 @@ public class CreateGroundItemEvent extends Event<GroundItem> {
      * @param player the player the ground item is being created for
      */
     private void createItemForPlayer(Player player) {
-        System.out.println("Creating item for " + player.getName());
         player.getItems().createGroundItem(attachment);
     }
 
@@ -79,7 +74,6 @@ public class CreateGroundItemEvent extends Event<GroundItem> {
      * @param player the player the item is being removed for
      */
     private void removeItemForPlayer(Player player) {
-        System.out.println("Removing item for " + player.getName());
         player.getItems().removeGroundItem(attachment);
     }
 
