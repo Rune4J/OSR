@@ -25,21 +25,16 @@ import ethos.model.players.PlayerHandler;
 import ethos.model.players.PlayerSave;
 import ethos.model.players.combat.monsterhunt.MonsterHunt;
 import ethos.model.players.packets.Commands;
-import ethos.model.players.packets.commands.admin.Debugslayer;
 import ethos.net.PipelineFactory;
 import ethos.punishments.PunishmentCycleEvent;
 import ethos.punishments.Punishments;
 import ethos.runehub.RunehubConstants;
-import ethos.runehub.RunehubUtils;
-import ethos.runehub.TimeUtils;
 import ethos.runehub.combat.style.WeaponType;
 import ethos.runehub.content.MobKillDatabase;
 import ethos.runehub.content.achievement.Achievement;
 import ethos.runehub.content.achievement.AchievementCache;
 import ethos.runehub.content.achievement.AchievementDAO;
 import ethos.runehub.content.charter.*;
-import ethos.runehub.content.job.Job;
-import ethos.runehub.content.job.JobUtils;
 import ethos.runehub.content.journey.*;
 import ethos.runehub.entity.combat.CombatController;
 import ethos.runehub.entity.item.GameItem;
@@ -48,16 +43,9 @@ import ethos.runehub.entity.item.ItemInteractionLoader;
 import ethos.runehub.entity.item.equipment.*;
 import ethos.runehub.entity.mob.AnimationDefinition;
 import ethos.runehub.entity.mob.AnimationDefinitionDAO;
-import ethos.runehub.entity.mob.hostile.HostileMobContext;
-import ethos.runehub.entity.mob.hostile.HostileMobContextDAO;
 import ethos.runehub.entity.mob.hostile.HostileMobIdContextLoader;
 import ethos.runehub.event.FixedScheduledEventController;
-import ethos.runehub.event.chest.PrismaniaPromotionalChestEvent;
-import ethos.runehub.event.chest.PromotionalChestEvent;
-import ethos.runehub.skill.artisan.cooking.food.Brew;
-import ethos.runehub.skill.artisan.cooking.food.BrewDAO;
-import ethos.runehub.skill.artisan.crafting.jewellery.Jewellery;
-import ethos.runehub.skill.artisan.crafting.jewellery.JewelleryDAO;
+import ethos.rune4j.service.combat.pvm.PvMPointCalculator;
 import ethos.runehub.skill.combat.magic.spell.RuneIdentifier;
 import ethos.runehub.skill.combat.magic.spell.Spell;
 import ethos.runehub.skill.combat.magic.spell.SpellDAO;
@@ -67,11 +55,8 @@ import ethos.runehub.skill.gathering.tool.GatheringToolLoader;
 import ethos.runehub.skill.node.io.*;
 import ethos.runehub.skill.support.slayer.*;
 import ethos.runehub.world.RegionCache;
-import ethos.runehub.world.RegionLoader;
 import ethos.runehub.world.WorldController;
 import ethos.runehub.world.WorldSettingsController;
-import ethos.runehub.world.wushanko.island.Island;
-import ethos.runehub.world.wushanko.island.IslandDAO;
 import ethos.server.data.ServerData;
 import ethos.util.date.GameCalendar;
 import ethos.util.log.Logger;
@@ -96,14 +81,9 @@ import org.runehub.api.util.APILogger;
 import org.runehub.api.util.IDManager;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.IrregularPolygon;
-import org.runehub.api.util.math.geometry.impl.Rectangle;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -111,7 +91,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * The main class needed to start the server.
@@ -225,6 +204,8 @@ public class Server {
     private static final ScheduledExecutorService GAME_THREAD = Executors.newSingleThreadScheduledExecutor();
 
     private static final ScheduledExecutorService IO_THREAD = Executors.newSingleThreadScheduledExecutor();
+
+    private static PvMPointCalculator pvmPointCalculator = new PvMPointCalculator();
 
     static {
         serverlistenerPort = Config.SERVER_STATE.getPort();
@@ -1446,6 +1427,10 @@ public class Server {
 
     public static Punishments getPunishments() {
         return PUNISHMENTS;
+    }
+
+    public static PvMPointCalculator getPvmPointCalculator() {
+        return pvmPointCalculator;
     }
 
     public static String getStatus() {

@@ -40,6 +40,8 @@ Data/clan/*
 # Exclude a specific .xml file from being ignored
 !res/logback.xml
 
+!Data/runehub/db/rune4j
+
 # Not sure / Legacy
 Data/Server/starters.var
 bin/*
