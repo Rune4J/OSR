@@ -206,7 +206,7 @@ public class Farming extends GatheringSkill {
      */
 
     public void advanceGrowthStage(int stages, int patchLocation, boolean overgrowthOnly) {
-        logger.info("Advancing growth stage by: {} at patch: {}", stages, patchLocation);
+        logger.debug("Advancing growth stage by: {} at patch: {}", stages, patchLocation);
         List<PatchMetaState> patchesInFarm = patchMetaStateService.findAllPatchMetaStateForPlayerInRegion(
                 this.getPlayer().getContext().getId(),
                 RunehubUtils.getRegionId(this.getPlayer().getX(), this.getPlayer().getY())
@@ -319,7 +319,7 @@ public class Farming extends GatheringSkill {
                 break;
         }
 
-        logger.info("Varbit: {}", varbit);
+        logger.debug("Varbit: {}", varbit);
         this.getPlayer().getPA().sendConfig(529, varbit);
 
     }
@@ -337,32 +337,32 @@ public class Farming extends GatheringSkill {
         int varbit = 0;
         if (patchState.getSeedId() != 0) {
             CropState cropState = cropStateService.findBySeedId(patchState.getSeedId());
-            logger.info("Varbit for special case patch: {}", varbit);
+            logger.debug("Varbit for special case patch: {}", varbit);
             int diseasedOffset = patchState.getDiseased() == 1 ?
                     varbit
                             + cropState.getStages()
                             + cropState.getMaturityStages()
                     : 0;
-            logger.info("Varbit for special case patch with diseased offset: {}", diseasedOffset);
+            logger.debug("Varbit for special case patch with diseased offset: {}", diseasedOffset);
             int wateredOffset = patchState.getWatered() == 1 ?
                     diseasedOffset + cropState.getStages()
                     : 0;
-            logger.info("Varbit for special case patch with watered offset: {}", wateredOffset);
+            logger.debug("Varbit for special case patch with watered offset: {}", wateredOffset);
             varbit = cropState.getCropIndex() + diseasedOffset + wateredOffset + patchState.getGrowthStage();
-            logger.info("Varbit for special case patch with offsets: {}", varbit);
+            logger.debug("Varbit for special case patch with offsets: {}", varbit);
             return varbit;
         }
         return getVarbitForPatch(patchState); //this is for overgrown patches
     }
 
     private int getVarbitForPatch(PatchState patchState) {
-        logger.info("Getting varbit for patch: {}", patchState);
+        logger.debug("Getting varbit for patch: {}", patchState);
         int varbit = (patchState.getGrowthStage() + (patchState.getWatered() << 6 | patchState.getDiseased() << 7) << patchState.getPatchLocation());
         if (patchState.getSeedId() != 0)
             varbit = (cropStateService.findBySeedId(patchState.getSeedId()).getCropIndex()
                     + patchState.getGrowthStage()
                     + (patchState.getWatered() << 6 | patchState.getDiseased() << 7) << patchState.getPatchLocation());
-        logger.info("Varbit for patch: {}", varbit);
+        logger.debug("Varbit for patch: {}", varbit);
         return varbit;
     }
 

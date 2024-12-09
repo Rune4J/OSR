@@ -4,6 +4,9 @@ import org.runehub.api.io.data.QueryParameter;
 import org.runehub.api.io.data.SqlDataType;
 import org.runehub.api.io.data.StoredObject;
 import org.runehub.api.io.data.StoredValue;
+
+import java.util.Arrays;
+
 @StoredObject(tableName = "runes")
 public class Rune {
 
@@ -21,6 +24,15 @@ public class Rune {
 
     public RuneIdentifier getRuneId() {
         return RuneIdentifier.values()[id];
+    }
+
+    @Override
+    public String toString() {
+        return "Rune{" +
+                "id=" + id +
+                ", validItems=" + Arrays.toString(validItems) +
+                ", validEquipment=" + Arrays.toString(validEquipment) +
+                '}';
     }
 
     public Rune(int id, int[] validItems, int[] validEquipment) {

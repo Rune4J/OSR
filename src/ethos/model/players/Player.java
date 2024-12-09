@@ -1948,7 +1948,7 @@ public class Player extends Entity implements PlayerCharacterEntity {
 
             sendMessage("Welcome to " + Config.SERVER_NAME + "."); // welcome message - michae;
             this.initializeDailyContent();
-            getPA().showInterface(54000);
+//            getPA().showInterface(54000);
             WorldSettingsController.getInstance().initializeTimers(this);
             sendMessage("^Membership You have $" + MembershipController.getInstance().getDaysOfMembershipRemainingAsString(context) + " days of membership remaining.");
 //            Membership.checkDate(this);
