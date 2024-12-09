@@ -41,6 +41,8 @@ Data/clan/*
 !res/logback.xml
 
 !Data/runehub/db/rune4j
+Data/runehub/db/players.db
+Data/runehub/world-settings.json
 
 # Not sure / Legacy
 Data/Server/starters.var
