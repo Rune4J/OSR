@@ -1,13 +1,12 @@
-package ethos.runehub.action.click;
+package ethos.runehub.skill.combat.magic.action;
 
-import ethos.Config;
 import ethos.model.players.Player;
 import ethos.runehub.skill.Skill;
 import org.runehub.api.util.math.geometry.Point;
-import org.runehub.api.util.math.geometry.impl.Polygon;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
 
-public class DefaultHomeTeleportAction extends HomeTeleportAction {
+public class SlowTeleportSkillAction extends AbstractTeleportSkillAction{
+
 
     @Override
     protected void onActionStart() {
@@ -25,14 +24,6 @@ public class DefaultHomeTeleportAction extends HomeTeleportAction {
     protected void onTick() {
         final Point selectedTeleportPoint = teleportArea.getAllPoints().get(Skill.SKILL_RANDOM.nextInt(teleportArea.getAllPoints().size()));
         this.getActor().getPA().movePlayer(selectedTeleportPoint.getX(),selectedTeleportPoint.getY(),0);
-        if (this.getActor().getContext().getPlayerSaveData().getTeleportCharges().value() <= 0) {
-            this.getActor().getContext().getPlayerSaveData().setLastHomeTeleportTimestamp(System.currentTimeMillis());
-        } else {
-            this.getActor().getContext().getPlayerSaveData().getTeleportCharges().decrement();
-            this.getActor().sendMessage("#" + this.getActor().getContext().getPlayerSaveData().getTeleportCharges().value() + " teleport charges remaining.");
-        }
-        this.getActor().getAttributes().getAchievementController().completeAchievement(-5365918924791133965L);
-//        this.getActor().getAttributes().getJourneyController().checkJourney(4640797210886423903L,1);
     }
 
     @Override
@@ -49,11 +40,34 @@ public class DefaultHomeTeleportAction extends HomeTeleportAction {
         }
     }
 
-    public DefaultHomeTeleportAction(Player attachment) {
-        super(attachment,12);
-        this.teleportArea = new Rectangle(new Point(3102,3248),new Point(3106,3251));
+    @Override
+    protected void validateInventory() {
+
+    }
+
+    @Override
+    protected void validateLevelRequirements() {
+
+    }
+
+    @Override
+    protected void validateItemRequirements() {
+
+    }
+
+    @Override
+    protected void updateAnimation() {
+
+    }
+
+    @Override
+    protected void addItems(int id, int amount) {
+
+    }
+
+    public SlowTeleportSkillAction(Player actor, Rectangle teleportArea) {
+        super(actor, 12, teleportArea);
     }
 
 
-    private final Rectangle teleportArea;
 }

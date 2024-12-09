@@ -1,24 +1,5 @@
 package ethos.model.players.packets;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import ethos.model.players.BookUI;
-import ethos.runehub.action.click.DefaultHomeTeleportAction;
-import ethos.runehub.action.click.InstantHomeTeleportAction;
-import ethos.runehub.content.journey.JourneyStepType;
-import ethos.runehub.skill.artisan.cooking.CookingItemReaction;
-import ethos.runehub.skill.artisan.cooking.action.ChurnDairyAction;
-import ethos.runehub.skill.artisan.cooking.action.CookOnNodeAction;
-import ethos.runehub.skill.combat.magic.action.CastModernTeleportSkillAction;
-import ethos.runehub.skill.combat.magic.spell.SpellCache;
-import ethos.runehub.ui.impl.PlayPassUI;
-import org.apache.commons.lang3.text.WordUtils;
-
 import ethos.Config;
 import ethos.Server;
 import ethos.model.content.PlayerEmotes;
@@ -38,12 +19,7 @@ import ethos.model.multiplayer_session.MultiplayerSessionType;
 import ethos.model.multiplayer_session.duel.DuelSession;
 import ethos.model.multiplayer_session.duel.DuelSessionRules.Rule;
 import ethos.model.multiplayer_session.trade.TradeSession;
-import ethos.model.players.Boundary;
-import ethos.model.players.Membership;
-import ethos.model.players.PacketType;
-import ethos.model.players.Player;
-import ethos.model.players.PlayerHandler;
-import ethos.model.players.Right;
+import ethos.model.players.*;
 import ethos.model.players.combat.Special;
 import ethos.model.players.combat.Specials;
 import ethos.model.players.combat.magic.LunarSpells;
@@ -54,21 +30,29 @@ import ethos.model.players.packets.dialogueoptions.FiveOptions;
 import ethos.model.players.packets.dialogueoptions.FourOptions;
 import ethos.model.players.packets.dialogueoptions.ThreeOptions;
 import ethos.model.players.packets.dialogueoptions.TwoOptions;
-import ethos.model.players.skills.Cooking;
-import ethos.model.players.skills.Smelting;
-import ethos.model.players.skills.crafting.BattlestaveMaking;
-import ethos.model.players.skills.crafting.BraceletMaking;
+import ethos.model.players.skills.crafting.*;
 import ethos.model.players.skills.crafting.CraftingData.tanningData;
-import ethos.model.players.skills.crafting.GlassBlowing;
-import ethos.model.players.skills.crafting.LeatherMaking;
-import ethos.model.players.skills.crafting.Tanning;
 import ethos.model.shops.ShopAssistant;
 import ethos.net.discord.DiscordMessager;
+import ethos.runehub.content.journey.JourneyStepType;
+import ethos.runehub.skill.artisan.cooking.action.ChurnDairyAction;
+import ethos.runehub.skill.combat.magic.action.HomeModernTeleportSkillAction;
+import ethos.runehub.skill.combat.magic.action.HomeSlowTeleportSkillAction;
+import ethos.runehub.skill.combat.magic.action.ModernSpellBookTeleportSkillAction;
+import ethos.runehub.skill.combat.magic.spell.SpellCache;
+import ethos.runehub.ui.impl.PlayPassUI;
 import ethos.util.Misc;
-import org.runehub.api.util.APILogger;
-import org.runehub.api.util.SkillDictionary;
+import org.apache.commons.lang3.text.WordUtils;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
+
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Clicking most buttons
@@ -269,10 +253,10 @@ public class ClickingButtons implements PacketType {
         LunarSpells.lunarButton(c, actionButtonId);
         switch (actionButtonId) {
             case 4140:
-                c.getSkillController().getMagic().train(new CastModernTeleportSkillAction(c,new Rectangle(new Point(3211,3423),new Point(3214,3425)), SpellCache.getInstance().read(0)));
+                c.getSkillController().getMagic().train(new ModernSpellBookTeleportSkillAction(c,new Rectangle(new Point(3211,3423),new Point(3214,3425)), SpellCache.getInstance().read(0)));
                 break;
             case 4143:
-                c.getSkillController().getMagic().train(new CastModernTeleportSkillAction(c,new Rectangle(new Point(3222, 3218),new Point(3222, 3218)), SpellCache.getInstance().read(1)));
+                c.getSkillController().getMagic().train(new ModernSpellBookTeleportSkillAction(c,new Rectangle(new Point(3222, 3218),new Point(3222, 3218)), SpellCache.getInstance().read(1)));
                 break;
             case 31066:
                 c.getPA().closeAllWindows();
@@ -2428,10 +2412,12 @@ public class ClickingButtons implements PacketType {
                 }
 //			c.getPA().spellTeleport(3092, 3249, 0, false);
                 if (c.getContext().getPlayerSaveData().getInstantTeleportCharges().value() == 0) {
-                    Server.getEventHandler().submit(new DefaultHomeTeleportAction(c));
+                    c.getSkillController().getMagic().train(new HomeSlowTeleportSkillAction(c));
+//                    Server.getEventHandler().submit(new HomeSlowTeleportSkillAction(c));
                     c.getAttributes().getJourneyController().checkJourney(actionButtonId,1, JourneyStepType.CAST_SPELL);
                 }else {
-                    Server.getEventHandler().submit(new InstantHomeTeleportAction(c));
+                    c.getSkillController().getMagic().train(new HomeModernTeleportSkillAction(c));
+//                    Server.getEventHandler().submit(new InstantHomeTeleportAction(c));
                     c.getAttributes().getJourneyController().checkJourney(actionButtonId,1, JourneyStepType.CAST_SPELL);
                 }
                 break;
@@ -2440,7 +2426,8 @@ public class ClickingButtons implements PacketType {
 //				return;
 //			}
 //			c.getPA().spellTeleport(Config.START_LOCATION_X, Config.START_LOCATION_Y, 0, true);
-                Server.getEventHandler().submit(new DefaultHomeTeleportAction(c));
+//                Server.getEventHandler().submit(new DefaultHomeTeleportAction(c));
+                c.getSkillController().getMagic().train(new HomeSlowTeleportSkillAction(c));
                 c.getAttributes().getJourneyController().checkJourney(actionButtonId,1, JourneyStepType.CAST_SPELL);
                 break;
 
