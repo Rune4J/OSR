@@ -71,6 +71,8 @@ public class MerchantCache extends LazyLoader<Integer,Merchant> {
                 return new HeadChefMerchant();
             case 4274:
                 return new LeelaSmithingMerchant();
+            case 5809:
+                return new TannerMerchant();
             default: return null;
         }
     }

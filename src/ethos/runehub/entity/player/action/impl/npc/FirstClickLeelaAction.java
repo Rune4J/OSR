@@ -32,7 +32,7 @@ public class FirstClickLeelaAction extends ClickNPCAction {
         return new DialogSequence.DialogSequenceBuilder(player)
                 .addNpcChat(NAME,ID,
                         "My workshop is a busy place. I would",
-                        "need your help smithing items too fill orders.",
+                        "need your help smithing items to fill orders.",
                         "I'll pay you with Smithing XP and coins. The",
                         "more difficult the job the more I'll pay."
                         )

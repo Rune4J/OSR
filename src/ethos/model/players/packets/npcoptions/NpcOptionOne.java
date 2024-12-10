@@ -712,9 +712,6 @@ case 4625:
 		case 559:
 			player.getShops().openShop(16);
 			break;
-		case 5809:
-			Tanning.sendTanningInterface(player);
-			break;
 
 		case 2913:
 			player.getShops().openShop(22);
