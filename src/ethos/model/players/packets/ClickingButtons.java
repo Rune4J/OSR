@@ -215,11 +215,11 @@ public class ClickingButtons implements PacketType {
         if (c.braceletDialogue) {
             BraceletMaking.craftBracelet(c, actionButtonId);
         }
-        for (tanningData t : tanningData.values()) {
-            if (actionButtonId == t.getButtonId(actionButtonId)) {
-                Tanning.tanHide(c, actionButtonId);
-            }
-        }
+//        for (tanningData t : tanningData.values()) {
+//            if (actionButtonId == t.getButtonId(actionButtonId)) {
+//                Tanning.tanHide(c, actionButtonId);
+//            }
+//        }
         if (c.getPresets().clickButton(actionButtonId)) {
             return;
         }

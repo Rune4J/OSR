@@ -61,7 +61,8 @@ public class Merchant {
     }
 
     public boolean buyItemFromPlayer(int itemId, int amount, int slot, Player player) {
-        if (ItemIdContextLoader.getInstance().read(itemId).isTradable() && itemId != currencyId) {
+        if (ItemIdContextLoader.getInstance().read(itemId).isTradable() && itemId != currencyId
+        && buyBackIds.contains(-1) || buyBackIds.contains(itemId)) {
             final int price = this.getPriceMerchantWillBuyFor(itemId) * amount;
             if (player.getItems().playerHasItem(itemId, amount)) {
                 if (player.getItems().freeSlots() > (ItemIdContextLoader.getInstance().read(currencyId).isStackable() ? 0 : amount)) {

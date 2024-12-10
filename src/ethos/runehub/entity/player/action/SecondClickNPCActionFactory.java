@@ -30,7 +30,7 @@ public class SecondClickNPCActionFactory {
                 };
             case 1039:
             case 637:
-            	
+            case 5809:
                 return new ClickOpenShopAction(player,nodeX,nodeY,nodeId,npcIndex);
             case 401:
                 return new ClickNPCAction(player,nodeX,nodeY,nodeId,npcIndex) {

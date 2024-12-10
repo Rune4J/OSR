@@ -11,6 +11,8 @@ public class FirstClickNPCActionFactory {
     public static ClickNPCAction getAction(Player player, int nodeX, int nodeY, int nodeId, int npcIndex) {
         Logger.getGlobal().fine("First Click NPC Action - " + nodeId + " " + nodeX + " " + nodeY);
         switch (nodeId) {
+            case 5809:
+                return new FirstClickTannerAction(player,nodeX,nodeY,nodeId,npcIndex);
             case 4274:
                 return new FirstClickLeelaAction(player,nodeX,nodeY,nodeId,npcIndex);
             case 1430:
