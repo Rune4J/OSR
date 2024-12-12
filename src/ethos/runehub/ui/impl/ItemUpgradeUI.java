@@ -22,7 +22,7 @@ public class ItemUpgradeUI extends SelectionParentUI {
     protected void onOpen() {
         super.onOpen();
         titleLabel.setText("Upgrade Bench");
-        listTitleLabel.setText("Available Upgrades");
+        listTitleLabel.setText("Available");
         rewardLabel.setText("Potential Upgrade");
         this.loadUpgradeList();
         this.updateUI();
