@@ -25,6 +25,9 @@ import ethos.runehub.action.click.npc.FirstClickNpcListener;
  * Click NPC
  */
 public class ClickNPC implements PacketType {
+
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClickNPC.class);
+
 	public static final int ATTACK_NPC = 72, MAGE_NPC = 131, FIRST_CLICK = 155, SECOND_CLICK = 17, THIRD_CLICK = 21,
 			FOURTH_CLICK = 18;
 
@@ -38,6 +41,9 @@ public class ClickNPC implements PacketType {
 		c.followId2 = c.npcIndex;
 //		c.getAttributes().setTargetedMobIndex(c.npcIndex);
 		c.getPA().followNpc();
+
+		logger.debug("ClickNPC: packetType: {}, packetSize: {}", packetType, packetSize);
+
 		if (c.getAttributes().isMovementResricted())
 			return;
 		if (c.isForceMovementActive()) {
@@ -52,13 +58,13 @@ public class ClickNPC implements PacketType {
 		if (c.teleTimer > 0) {
 			return;
 		}
-		System.out.println("Packet Type: " + packetType);
 		switch (packetType) {
 
 		/**
 		 * Attack npc melee or range
 		 **/
 		case ATTACK_NPC:
+
 //			final int mobIndex = c.getInStream().readUnsignedWordA();
 //			c.getAttributes().getPvECombatController().target(NPCHandler.npcs[mobIndex]);
 			if (c.morphed) {
@@ -178,6 +184,7 @@ public class ClickNPC implements PacketType {
 				c.getPA().resetFollow();
 			}
 			if (c.attackTimer <= 0) {
+				logger.debug("Attacking NPC: {}", c.npcType);
 				c.getCombat().attackNpc(c.npcIndex);
 //				c.getAttributes().getPvECombatController().target(NPCHandler.npcs[c.npcIndex]);
 				c.attackTimer++;
