@@ -5,6 +5,7 @@ import ethos.Server;
 import ethos.clip.Region;
 import ethos.clip.WorldObject;
 import ethos.model.players.Player;
+import ethos.runehub.RunehubUtils;
 import ethos.runehub.skill.Skill;
 import ethos.runehub.skill.node.context.impl.GatheringNodeContext;
 import ethos.runehub.skill.node.context.impl.ThievingStallNodeContext;
@@ -62,9 +63,9 @@ public class StealFromStallAction extends SupportSkillAction {
     @Override
     protected void validateLevelRequirements() {
         Preconditions.checkArgument(PreconditionUtils.isTrue(this.getActor().getSkillController().getLevel(this.getSkillId()) >= targetedNodeContext.getNode().getLevelRequirement()),
-                "You need a ?"
-                        + SkillDictionary.getSkillNameFromId(this.getSkillId())
-                        + " level of at least #"
+                "You need a $"
+                        + RunehubUtils.getSkillName(this.getSkillId())
+                        + " level of at least $"
                         + targetedNodeContext.getNode().getLevelRequirement()
                         + " to do this.");
     }
