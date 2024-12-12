@@ -1399,16 +1399,17 @@ public class AttackNPC {
                 NPC theNPC = NPCHandler.npcs[i];
                 double distanceToNpc = theNPC.getDistance(c.absX, c.absY);
                 int distance = c.getEquipmentInSlot(EquipmentSlot.MAIN_HAND).isPresent() ?
-                        c.getEquipmentInSlot(EquipmentSlot.MAIN_HAND).get().getSpeed() : 1;
-//				if (c.getCombat().usingHally() && !c.usingOtherRangeWeapons && !c.usingBallista && !c.usingBow && !c.usingMagic)
-//					distance = 2;
-//				if (c.usingOtherRangeWeapons && !c.usingBow && !c.usingMagic)
-//					distance = 4;
-//				if (c.usingBallista)
-//					distance = 6;
-//				if (c.usingBow || c.usingMagic || c.autocasting || c.playerEquipment[c.playerWeapon] == 11907 || c.playerEquipment[c.playerWeapon] == 12899)
-//					distance = 8;
-                if (distanceToNpc > distance + 2) {
+                        c.getEquipmentInSlot(EquipmentSlot.MAIN_HAND).get().getRange() : 1;
+
+				if (c.getCombat().usingHally() && !c.usingOtherRangeWeapons && !c.usingBallista && !c.usingBow && !c.usingMagic)
+					distance = 2;
+				if (c.usingOtherRangeWeapons && !c.usingBow && !c.usingMagic)
+					distance = 4;
+				if (c.usingBallista)
+					distance = 6;
+				if (c.usingBow || c.usingMagic || c.autocasting || c.playerEquipment[c.playerWeapon] == 11907 || c.playerEquipment[c.playerWeapon] == 12899)
+					distance = 8;
+                if (distanceToNpc > distance ) {
                     c.attackTimer = 1;
                     return;
                 }

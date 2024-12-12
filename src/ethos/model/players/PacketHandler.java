@@ -63,7 +63,6 @@ public class PacketHandler {
 //		AttackMobPacket cn = new AttackMobPacket();//TODO Change to reset npc clicks
 		ClickNPC cn = new ClickNPC();
 		packetId[72] = cn;
-		packetId[72] = cn;
 		packetId[131] = cn;
 		packetId[155] = cn;
 		packetId[17] = cn;
