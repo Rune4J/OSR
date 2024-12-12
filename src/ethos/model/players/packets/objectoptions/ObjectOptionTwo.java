@@ -285,9 +285,6 @@ public class ObjectOptionTwo {
 				c.sendMessage("You feel a drain on your memory.");
 			}
 			break;
-		case 11731:
-			c.getThieving().steal(Stall.Gem, objectType, location);
-			break;
 		case 17010:
 			if (c.playerMagicBook == 0) {
 				c.sendMessage("You switch spellbook to lunar magic.");
