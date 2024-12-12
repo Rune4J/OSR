@@ -1826,6 +1826,7 @@ public class Player extends Entity implements PlayerCharacterEntity {
                 .build()
         );
         this.getContext().getPlayerSaveData().setJoinTimestamp(System.currentTimeMillis());
+        this.getSkillController().getSailing().generateDailyVoyages();
     }
 
     public void initializeDailyContent() {
