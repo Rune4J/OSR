@@ -13,7 +13,6 @@ public class BiWeeklyResetEvent extends FixedScheduleEvent {
 
     @Override
     public void execute() {
-        System.out.println("Bi-Weekly Reset");
         WorldSettingsController.getInstance().getWorldSettings().setWeeklyResetTimestamp(System.currentTimeMillis());
         FixedScheduledEventController.getInstance().forceEvent(new PromotionalChestEventImpl());
         WorldSettingsController.getInstance().saveSettings();
@@ -25,7 +24,6 @@ public class BiWeeklyResetEvent extends FixedScheduleEvent {
         if (TimeUtils.getDurationBetween(lastReset, ZonedDateTime.now(ZoneId.of("UTC")).toInstant().toEpochMilli()).toDays() >= 14
         || ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastReset),ZoneId.of("UTC")).getDayOfYear() <
                 ZonedDateTime.now(ZoneId.of("UTC")).getDayOfYear()) {
-            System.out.println("Executing late-start bi-weekly reset");
             this.execute();
         }
     }

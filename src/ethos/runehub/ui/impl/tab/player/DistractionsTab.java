@@ -6,6 +6,7 @@ import ethos.runehub.entity.merchant.MerchantCache;
 import ethos.runehub.entity.merchant.impl.CommodityMerchant;
 import ethos.runehub.event.FixedScheduledEventController;
 import ethos.runehub.ui.component.impl.TextComponent;
+import ethos.runehub.world.WorldSettingsController;
 
 import java.util.Arrays;
 
@@ -35,7 +36,7 @@ public class DistractionsTab extends InfoTab {
     }
 
     private void registerEventNameLabels() {
-        eventNameLabel[0] = new TextComponent(startIndex + (totalChildren) + 0,this.getEventName(0));
+        eventNameLabel[0] = new TextComponent(startIndex + (totalChildren),this.getEventName(0));
         eventNameLabel[1] = new TextComponent(startIndex + (totalChildren) + 1,this.getEventName(2));
         eventNameLabel[2] = new TextComponent(startIndex + (totalChildren) + 2,this.getEventName(3));
 //        for (int i = 0; i < eventNameLabel.length; i++) {
@@ -45,7 +46,7 @@ public class DistractionsTab extends InfoTab {
     }
 
     private void registerEventTimeLabels() {
-        eventTimeLabel[0] = new TextComponent(startIndex + (totalChildren * 2) + 0,this.getEventText(0));
+        eventTimeLabel[0] = new TextComponent(startIndex + (totalChildren * 2),this.getEventText(0));
         eventTimeLabel[1] = new TextComponent(startIndex + (totalChildren * 2) + 1,this.getEventText(2));
         eventTimeLabel[2] = new TextComponent(startIndex + (totalChildren * 2) + 2,this.getEventText(3));
 //        for (int i = 0; i < eventTimeLabel.length; i++) {
@@ -91,7 +92,11 @@ public class DistractionsTab extends InfoTab {
             } else {
                 getPlayer().sendMessage("^D&D $Trader_Stan is unavailable.");
             }
-        },223229);
+        },223228);
+        registerButton(actionEvent -> getPlayer().sendMessage("^D&D " + (WorldSettingsController.getInstance().getWorldSettings().getCurrentEventId() == 0 ?
+                "No Promotional Event is active." :
+                "<ref=" + WorldSettingsController.getInstance().getPromotionalEvents().get(WorldSettingsController.getInstance().getWorldSettings().getCurrentEventId()).getName()
+                        + ",url=" + WorldSettingsController.getInstance().getPromotionalEvents().get(WorldSettingsController.getInstance().getWorldSettings().getCurrentEventId()).getUrl() + ">")),223229);
         this.eventNameLabel = new TextComponent[totalChildren];
         this.eventTimeLabel = new TextComponent[totalChildren];
         this.registerEventNameLabels();
