@@ -165,6 +165,8 @@ import java.util.logging.Logger;
 
 public class Player extends Entity implements PlayerCharacterEntity {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Player.class);
+
     public void sendUI(GameUI ui) {
         ui.open();
     }
@@ -2669,7 +2671,10 @@ public class Player extends Entity implements PlayerCharacterEntity {
     public boolean hasSpawnedOlm;
 
     private int getEnergyDepletedPerTick() {
-        return (int) (67 + ((67 * this.getWeight()) / 64));
+        // Let's clamp the player's weight between -10 and 100
+        final double clampedWeight = Math.min(Math.max(this.getWeight(), -10), 100);
+        double energyDepleted = 67 + ((67 * clampedWeight) / 64);
+        return (int) energyDepleted;
     }
 
     public String getRunEnergyPercentString() {
@@ -2677,9 +2682,11 @@ public class Player extends Entity implements PlayerCharacterEntity {
     }
 
     private void depleteEnergy() {
-//        skillController.addXP(SkillDictionary.Skill.AGILITY.getId(), 5);
+        int depleteAmount = this.getEnergyDepletedPerTick();
+        logger.debug("Depleting energy {} by {} distance {}", runEnergy,depleteAmount,runningDistanceTravelled);
+        skillController.addXP(SkillDictionary.Skill.AGILITY.getId(), 5);
         runningDistanceTravelled = 0;
-        runEnergy -= this.getEnergyDepletedPerTick();
+        runEnergy -= depleteAmount;
         playerAssistant.sendFrame126(this.getRunEnergyPercentString(), 149);
     }
 
