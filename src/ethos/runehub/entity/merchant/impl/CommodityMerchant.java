@@ -94,7 +94,9 @@ public class CommodityMerchant extends RotatingStockMerchant {
     @Override
     public boolean sellItemToPlayer(int itemId, int amount, int slot, Player player) {
         final int price = this.getPriceMerchantWillSellFor(itemId) * amount;
-//        if (amount <= this.getMerchandise().get(slot).getAmount()) {
+        System.out.println("Attempting to sell " + amount + " of " + itemId + " to player.");
+        System.out.println("In stock amount is " + this.getMerchandiseSlot(itemId).getAmount());
+        if (amount <= this.getMerchandise().get(slot).getAmount()) {
         if (player.getItems().playerHasItem(getCurrencyId(), price) || (itemId == 1459 && player.getItems().playerHasItem(995, price))) {
             if (player.getItems().freeSlots() > (ItemIdContextLoader.getInstance().read(itemId).isStackable() ? 0 : amount)) {
                 if (itemId == 1459) {
@@ -116,7 +118,9 @@ public class CommodityMerchant extends RotatingStockMerchant {
         } else {
             player.sendMessage("Come back when you're a little bit...richer!");
         }
-//        }
+        } else {
+            player.sendMessage("This item is out of stock.");
+        }
         return false;
     }
 
