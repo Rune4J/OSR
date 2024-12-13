@@ -6,10 +6,14 @@ import ethos.runehub.entity.merchant.Merchant;
 import ethos.runehub.skill.support.sailing.voyage.TradeGood;
 import org.runehub.api.io.load.impl.ItemIdContextLoader;
 import org.runehub.api.model.math.impl.AdjustableInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class SoldTradeGoodMerchant extends Merchant {
+
+    private static final Logger logger = LoggerFactory.getLogger(SoldTradeGoodMerchant.class);
 
     @Override
     public String getPriceForItemBeingBoughtFromShop(int itemId) {
@@ -33,12 +37,9 @@ public class SoldTradeGoodMerchant extends Merchant {
         this.getMerchandise().clear();
         final Map<Integer, AdjustableInteger> itemMap = new HashMap<>();
         long[] encodedTradeGoods = player.getSailingSaveData().getVoyageSoldGoods()[player.getAttributes().getSelectedVoyageIndex()];
-
         List<TradeGood> tradeGoods = new ArrayList<>();
         Arrays.stream(encodedTradeGoods).forEach(encodedItem -> tradeGoods.add(TradeGood.fromLong(encodedItem)));
-
         tradeGoods.forEach(gameItem -> {
-            System.out.println(gameItem);
             if (gameItem.getItemId() != 0) {
                 if (itemMap.containsKey(gameItem.getItemId())) {
                     itemMap.get(gameItem.getItemId()).add(gameItem.getStock());
@@ -86,7 +87,7 @@ public class SoldTradeGoodMerchant extends Merchant {
                 player.sendMessage("You can't add that many your ship will be overweight.");
             }
         } else {
-            player.sendMessage("This item is out of stock.");
+            player.sendMessage("The shop does not have that many.");
         }
         return false;
     }

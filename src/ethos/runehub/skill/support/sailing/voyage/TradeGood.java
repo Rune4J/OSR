@@ -8,14 +8,14 @@ public class TradeGood {
 
     public long toLong() {
         long bits = 0L;
-        bits |= ((long) this.itemId & ((1L << ITEM_ID_BITS) - 1)) << 0;
+        bits |= ((long) this.itemId & ((1L << ITEM_ID_BITS) - 1));
         bits |= ((long) this.stock & ((1L << STOCK_BITS) - 1)) << ITEM_ID_BITS;
         bits |= ((long) this.basePrice & ((1L << BASE_PRICE_BITS) - 1)) << (ITEM_ID_BITS + STOCK_BITS);
         return bits;
     }
 
     public static TradeGood fromLong(long bits) {
-        int itemId = (int) ((bits >> 0) & ((1L << ITEM_ID_BITS) - 1));
+        int itemId = (int) ((bits) & ((1L << ITEM_ID_BITS) - 1));
         int stock = (int) ((bits >> ITEM_ID_BITS) & ((1L << STOCK_BITS) - 1));
         int basePrice = (int) ((bits >> (ITEM_ID_BITS + STOCK_BITS)) & ((1L << BASE_PRICE_BITS) - 1));
         return new TradeGood(itemId, stock, basePrice);
