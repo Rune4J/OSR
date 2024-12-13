@@ -6,8 +6,11 @@ import ethos.model.players.Player;
 import ethos.model.players.packets.commands.Command;
 import ethos.model.players.packets.commands.owner.Object;
 import ethos.runehub.RunehubUtils;
+import ethos.runehub.entity.item.GameItem;
 import ethos.runehub.skill.artisan.crafting.TanningItem;
+import ethos.runehub.skill.support.sailing.voyage.TradeGood;
 import ethos.runehub.ui.TanningUI;
+import org.apache.poi.hssf.record.formula.functions.T;
 import org.runehub.api.util.math.geometry.Point;
 import org.runehub.api.util.math.geometry.impl.Rectangle;
 
@@ -48,7 +51,5 @@ public class E extends Command {
     @Override
     public void execute(Player c, String input) {
         String[] args = input.split(" ");
-        this.generateDailyVoyagesForPlayer(c);
-
     }
 }

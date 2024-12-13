@@ -18,6 +18,7 @@ import ethos.runehub.skill.support.sailing.ui.ShipwrightUI;
 import ethos.runehub.skill.support.sailing.ui.VoyageUI;
 import ethos.runehub.skill.support.sailing.voyage.TradeGood;
 import ethos.runehub.skill.support.sailing.voyage.Voyage;
+import ethos.runehub.world.wushanko.island.Island;
 import ethos.runehub.world.wushanko.island.IslandLoader;
 import ethos.runehub.world.wushanko.region.IslandRegionLoader;
 import ethos.util.Misc;
@@ -246,23 +247,29 @@ public class Sailing extends SupportSkill {
         logger.debug("Transferring selling cargo to stockpile for slot: {} and vIndex: {}", slot, vIndex);
         logger.debug("Selling cargo: {}", this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex));
         long[] items = this.getPlayer().getSailingSaveData().getSellingCargo()[slot];
-        Map<Integer, TradeGood> tradeGoodMap = this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex);
+//        Map<Integer, TradeGood> tradeGoodMap = this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex);
         for (int i = 0; i < items.length; i++) {
             GameItem gameItem = GameItem.decodeGameItem(items[i]);
             logger.debug("Decoded game item: {}", gameItem);
             if (gameItem.getId() != 0) {
-                TradeGood tradeGood = tradeGoodMap.get(gameItem.getId());
-                logger.debug("Trade good: {}", tradeGood);
-                if (tradeGood != null) {
-                    GameItem coins = new GameItem(995, tradeGood.getBasePrice() * gameItem.getAmount());
+                    int basePrice = this.getBasePriceOfTradeGood(gameItem.getId(), vIndex);
+                    GameItem coins = new GameItem(995, basePrice * gameItem.getAmount());
                     this.getPlayer().getSailingSaveData().setOrAddCargo(coins.encodeGameItem());
                     this.getPlayer().getSailingSaveData().setSellCargo(i, 0, slot);
-                } else { // This should never happen
-                    logger.error("Trade good is null for item: {}", gameItem);
-                }
             }
         }
     }
+
+    private int getBasePriceOfTradeGood(int itemId, int voyageIndex) {
+       long[] soldTradeGoods = this.getPlayer().getSailingSaveData().getVoyageBoughtGoods()[voyageIndex];
+        for (long soldTradeGood : soldTradeGoods) {
+            TradeGood tradeGood = TradeGood.fromLong(soldTradeGood);
+            if (tradeGood.getItemId() == itemId) {
+                return tradeGood.getBasePrice();
+            }
+        }
+         throw new IllegalArgumentException("Trade good not found in sold trade goods.");
+    };
 
     private void saveBuyingCargo(int slot) {
         long[] items = this.getPlayer().getAttributes().getSelectedBuyOffers();
@@ -288,12 +295,13 @@ public class Sailing extends SupportSkill {
             if (items[i] != 0) {
                 TradeGood tradeGood = TradeGood.fromLong(items[i]);
                 GameItem gameItem = new GameItem(tradeGood.getItemId(), tradeGood.getStock());
+                long encodedGameItem = gameItem.encodeGameItem();
 
-                System.out.println("Selling: " + tradeGood);
+                logger.debug("Trade good: {}, Game item: {}, Encoded game item: {}", tradeGood, gameItem, encodedGameItem);
 
-                this.getPlayer().getSailingSaveData().setSellCargo(i, gameItem.encodeGameItem(), slot);
+                this.getPlayer().getSailingSaveData().setSellCargo(i, encodedGameItem, slot);
                 this.getPlayer().getAttributes().setSellOffer(i, 0);
-                this.getPlayer().getSailingSaveData().setOrRemoveCargo(gameItem.encodeGameItem());
+                this.getPlayer().getSailingSaveData().setOrRemoveCargo(encodedGameItem);
             }
         }
     }
@@ -319,16 +327,19 @@ public class Sailing extends SupportSkill {
         for (int i = 0; i < indiciesToReplace.size(); i++) {
             int index = indiciesToReplace.get(i);
             Voyage voyage = this.generateVoyage();
+
             long vId = voyage.toLong();
             this.getPlayer().getSailingSaveData().setAvailableVoyage(index, vId);
-            this.generateVoyageBoughtTradeGoods(index);
+            this.generateVoyageBoughtTradeGoods(index, voyage.getIsland(), voyage.getRegion());
             this.generateVoyageSoldTradeGoods(index, voyage.getIsland(), voyage.getRegion());
         }
     }
 
     public Voyage generateVoyage() {
-        final int region = this.getScaledVoyageRegion();
+        // TODO - Only region 0 has islands with defined loot tables - uncomment this when that's changed
+        final int region = 0; //this.getScaledVoyageRegion();
         final int island = SailingUtils.getIslandFromRegion(region);
+        logger.debug("Generating voyage for region: {} and island: {}", region, island);
         final Voyage voyage = new Voyage(
                 SailingUtils.getStatRangeBasedOnRegion(region),
                 SailingUtils.getStatRangeBasedOnRegion(region),
@@ -349,53 +360,93 @@ public class Sailing extends SupportSkill {
         return decimalFormat.format(value);
     }
 
-    private void generateVoyageBoughtTradeGoods(int voyageIndex) {
-        int targetRegion = this.getScaledVoyageRegion();
-        int targetIsland = SailingUtils.getIslandFromRegion(targetRegion);
-        LootTable islandLootTable = LootTableLoader.getInstance().read(IslandLoader.getInstance().read(targetIsland).getTableId());
-        LootTable regionLootTable = LootTableLoader.getInstance().read(IslandRegionLoader.getInstance().read(targetRegion).getTableId());
-        for (int i = 0; i < 10; i++) {
-            Collection<Loot> islandLoot = LootTableContainerUtils.open(islandLootTable, this.getPlayer().getAttributes().getMagicFind());
-            Collection<Loot> regionLoot = LootTableContainerUtils.open(regionLootTable, this.getPlayer().getAttributes().getMagicFind());
-            Loot loot = null;
-            if (i > 5) {
-                loot = regionLoot.stream().findFirst().orElse(null);
-            } else {
-                loot = islandLoot.stream().findFirst().orElse(null);
-            }
+    private void generateVoyageBoughtTradeGoods(int voyageIndex, int targetIsland, int targetRegion) {
+        try {
+            Island island = IslandLoader.getInstance().read(targetIsland);
+            long islandTableId = island.getTableId();
+            LootTable islandLootTable = LootTableLoader.getInstance().read(islandTableId);
+            LootTable regionLootTable = LootTableLoader.getInstance().read(IslandRegionLoader.getInstance().read(targetRegion).getTableId());
+            for (int i = 0; i < 10; i++) {
+                Collection<Loot> islandLoot = LootTableContainerUtils.open(islandLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Collection<Loot> regionLoot = LootTableContainerUtils.open(regionLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Loot loot = null;
+                if (i > 5) {
+                    loot = regionLoot.stream().findFirst().orElse(null);
+                } else {
+                    loot = islandLoot.stream().findFirst().orElse(null);
+                }
 
-            if (loot != null) {
-                TradeGood tradeGood = new TradeGood(
-                        (int) loot.getId(),
-                        (int) loot.getAmount(),
-                        (int) RunehubUtils.applyPercentageRange(ItemIdContextLoader.getInstance().read((int) loot.getId()).getValue(), 0.15)
-                );
-                this.getPlayer().getSailingSaveData().setVoyageBoughtGoods(voyageIndex, i, tradeGood.toLong());
+                if (loot != null) {
+                    TradeGood tradeGood = new TradeGood(
+                            (int) loot.getId(),
+                            (int) loot.getAmount(),
+                            (int) RunehubUtils.applyPercentageRange(ItemIdContextLoader.getInstance().read((int) loot.getId()).getValue(), 0.15)
+                    );
+                    this.getPlayer().getSailingSaveData().setVoyageBoughtGoods(voyageIndex, i, tradeGood.toLong());
+                }
             }
+        } catch (NullPointerException e) {
+            logger.error("Error generating voyage bought trade goods: {}",voyageIndex, e);
+        }
+    }
+
+    private void generateVoyageBoughtTradeGoods(int voyageIndex) {
+        try {
+            int targetRegion = this.getScaledVoyageRegion();
+            int targetIsland = SailingUtils.getIslandFromRegion(targetRegion);
+            Island island = IslandLoader.getInstance().read(targetIsland);
+            long islandTableId = island.getTableId();
+            LootTable islandLootTable = LootTableLoader.getInstance().read(islandTableId);
+            LootTable regionLootTable = LootTableLoader.getInstance().read(IslandRegionLoader.getInstance().read(targetRegion).getTableId());
+            for (int i = 0; i < 10; i++) {
+                Collection<Loot> islandLoot = LootTableContainerUtils.open(islandLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Collection<Loot> regionLoot = LootTableContainerUtils.open(regionLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Loot loot = null;
+                if (i > 5) {
+                    loot = regionLoot.stream().findFirst().orElse(null);
+                } else {
+                    loot = islandLoot.stream().findFirst().orElse(null);
+                }
+
+                if (loot != null) {
+                    TradeGood tradeGood = new TradeGood(
+                            (int) loot.getId(),
+                            (int) loot.getAmount(),
+                            (int) RunehubUtils.applyPercentageRange(ItemIdContextLoader.getInstance().read((int) loot.getId()).getValue(), 0.15)
+                    );
+                    this.getPlayer().getSailingSaveData().setVoyageBoughtGoods(voyageIndex, i, tradeGood.toLong());
+                }
+            }
+        } catch (NullPointerException e) {
+            logger.error("Error generating voyage bought trade goods: {}",voyageIndex, e);
         }
     }
 
     private void generateVoyageSoldTradeGoods(int voyageIndex, int islandId, int regionId) {
-        LootTable islandLootTable = LootTableLoader.getInstance().read(IslandLoader.getInstance().read(islandId).getTableId());
-        LootTable regionLootTable = LootTableLoader.getInstance().read(IslandRegionLoader.getInstance().read(regionId).getTableId());
-        for (int i = 0; i < 10; i++) {
-            Collection<Loot> islandLoot = LootTableContainerUtils.open(islandLootTable, this.getPlayer().getAttributes().getMagicFind());
-            Collection<Loot> regionLoot = LootTableContainerUtils.open(regionLootTable, this.getPlayer().getAttributes().getMagicFind());
-            Loot loot = null;
-            if (i > 5) {
-                loot = regionLoot.stream().findFirst().orElse(null);
-            } else {
-                loot = islandLoot.stream().findFirst().orElse(null);
-            }
+        try {
+            LootTable islandLootTable = LootTableLoader.getInstance().read(IslandLoader.getInstance().read(islandId).getTableId());
+            LootTable regionLootTable = LootTableLoader.getInstance().read(IslandRegionLoader.getInstance().read(regionId).getTableId());
+            for (int i = 0; i < 10; i++) {
+                Collection<Loot> islandLoot = LootTableContainerUtils.open(islandLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Collection<Loot> regionLoot = LootTableContainerUtils.open(regionLootTable, this.getPlayer().getAttributes().getMagicFind());
+                Loot loot = null;
+                if (i > 5) {
+                    loot = regionLoot.stream().findFirst().orElse(null);
+                } else {
+                    loot = islandLoot.stream().findFirst().orElse(null);
+                }
 
-            if (loot != null) {
-                TradeGood tradeGood = new TradeGood(
-                        (int) loot.getId(),
-                        (int) loot.getAmount(),
-                        (int) RunehubUtils.applyPercentageRange(ItemIdContextLoader.getInstance().read((int) loot.getId()).getValue(), 0.15)
-                );
-                this.getPlayer().getSailingSaveData().setVoyageSoldGoods(voyageIndex, i, tradeGood.toLong());
+                if (loot != null) {
+                    TradeGood tradeGood = new TradeGood(
+                            (int) loot.getId(),
+                            (int) loot.getAmount(),
+                            (int) RunehubUtils.applyPercentageRange(ItemIdContextLoader.getInstance().read((int) loot.getId()).getValue(), 0.15)
+                    );
+                    this.getPlayer().getSailingSaveData().setVoyageSoldGoods(voyageIndex, i, tradeGood.toLong());
+                }
             }
+        } catch (NullPointerException e) { // this should never happen and only does because there are islands without loot tables
+            logger.error("Error generating voyage sold trade goods: {}",voyageIndex, e);
         }
     }
 

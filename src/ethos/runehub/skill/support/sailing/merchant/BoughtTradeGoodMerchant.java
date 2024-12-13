@@ -99,6 +99,7 @@ public class BoughtTradeGoodMerchant extends Merchant {
         int availableSlot = player.getSailingSaveData().getNextAvailableCargoIndex(
                 items
         );
+
         player.getAttributes().setSellOffer(availableSlot, selectedTradeGood.toLong());
     }
 
