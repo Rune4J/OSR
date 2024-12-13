@@ -58,7 +58,7 @@ public class Sailing extends SupportSkill {
     public double getOutgoingCargoWeight() {
         double weight = Arrays.stream(this.getPlayer().getAttributes().getSelectedSellOffers())
                 .filter(Objects::nonNull)
-                .mapToDouble(item -> ItemIdContextLoader.getInstance().read(TradeGood.fromLong(item).getItemId()).getWeight() * TradeGood.fromLong(item).getStock())
+                .mapToDouble(item -> Math.abs(ItemIdContextLoader.getInstance().read(TradeGood.fromLong(item).getItemId()).getWeight()) * TradeGood.fromLong(item).getStock())
                 .sum();
         return weight;
     }
@@ -66,7 +66,7 @@ public class Sailing extends SupportSkill {
     public double getIncomingCargoWeight() {
         double weight = Arrays.stream(this.getPlayer().getAttributes().getSelectedBuyOffers())
                 .filter(Objects::nonNull)
-                .mapToDouble(item -> ItemIdContextLoader.getInstance().read(TradeGood.fromLong(item).getItemId()).getWeight() * TradeGood.fromLong(item).getStock())
+                .mapToDouble(item -> Math.abs(ItemIdContextLoader.getInstance().read(TradeGood.fromLong(item).getItemId()).getWeight()) * TradeGood.fromLong(item).getStock())
                 .sum();
         return weight;
     }
