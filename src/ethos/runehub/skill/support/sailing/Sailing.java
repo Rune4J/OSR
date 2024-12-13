@@ -244,6 +244,7 @@ public class Sailing extends SupportSkill {
 
     private void transferSellingCargoToStockpile(int slot, int vIndex) {
         logger.debug("Transferring selling cargo to stockpile for slot: {} and vIndex: {}", slot, vIndex);
+        logger.debug("Selling cargo: {}", this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex));
         long[] items = this.getPlayer().getSailingSaveData().getSellingCargo()[slot];
         Map<Integer, TradeGood> tradeGoodMap = this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex);
         for (int i = 0; i < items.length; i++) {
@@ -252,9 +253,13 @@ public class Sailing extends SupportSkill {
             if (gameItem.getId() != 0) {
                 TradeGood tradeGood = tradeGoodMap.get(gameItem.getId());
                 logger.debug("Trade good: {}", tradeGood);
-                GameItem coins = new GameItem(995, tradeGood.getBasePrice() * gameItem.getAmount());
-                this.getPlayer().getSailingSaveData().setOrAddCargo(coins.encodeGameItem());
-                this.getPlayer().getSailingSaveData().setSellCargo(i, 0, slot);
+                if (tradeGood != null) {
+                    GameItem coins = new GameItem(995, tradeGood.getBasePrice() * gameItem.getAmount());
+                    this.getPlayer().getSailingSaveData().setOrAddCargo(coins.encodeGameItem());
+                    this.getPlayer().getSailingSaveData().setSellCargo(i, 0, slot);
+                } else { // This should never happen
+                    logger.error("Trade good is null for item: {}", gameItem);
+                }
             }
         }
     }

@@ -85,6 +85,8 @@ public class SoldTradeGoodMerchant extends Merchant {
             } else {
                 player.sendMessage("You can't add that many your ship will be overweight.");
             }
+        } else {
+            player.sendMessage("This item is out of stock.");
         }
         return false;
     }

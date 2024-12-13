@@ -26,12 +26,8 @@ import java.util.stream.Collectors;
  */
 public class E extends Command {
 
-
-    @Override
-    public void execute(Player c, String input) {
-        String[] args = input.split(" ");
-
-        c.sendUI(new TanningUI(c,
+    private void sendTanningUI(Player player) {
+        player.sendUI(new TanningUI(player,
                 new TanningItem[]{
                         new TanningItem(1739, 1741, 1),
                         new TanningItem(1739, 1743, 3),
@@ -42,6 +38,17 @@ public class E extends Command {
                         new TanningItem(1749, 2507, 13),
                         new TanningItem(1747, 2509, 15)
                 }
-                ));
+        ));
+    }
+
+    private void generateDailyVoyagesForPlayer(Player player) {
+        player.getSkillController().getSailing().generateDailyVoyages();
+    }
+
+    @Override
+    public void execute(Player c, String input) {
+        String[] args = input.split(" ");
+        this.generateDailyVoyagesForPlayer(c);
+
     }
 }

@@ -63,6 +63,7 @@ public class BoughtTradeGoodMerchant extends Merchant {
 
     @Override
     public boolean sellItemToPlayer(int itemId, int amount, int slot, Player player) {
+
         if (amount <= this.getMerchandise().get(slot).getAmount()) {
             double addedWeight = ItemIdContextLoader.getInstance().read(itemId).getWeight() * amount;
             double availableWeight = player.getSkillController().getSailing().getShip(player.getAttributes().getSelectedShipSlot()).getWeightCapacity();
@@ -85,6 +86,8 @@ public class BoughtTradeGoodMerchant extends Merchant {
             } else {
                 player.sendMessage("You can't add that many your ship will be overweight.");
             }
+        } else {
+            player.sendMessage("They will not purchase that many.");
         }
         return false;
     }
