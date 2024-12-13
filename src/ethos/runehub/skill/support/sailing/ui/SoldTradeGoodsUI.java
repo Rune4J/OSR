@@ -116,21 +116,29 @@ public class SoldTradeGoodsUI extends SelectionParentUI {
                 Voyage voyage = Voyage.fromLong(this.getPlayer().getSailingSaveData().getAvailabeVoyages()[voyageIndex]);
                 this.getPlayer().getSkillController().getSailing().startVoyage(slot,voyage.toLong());
                 this.close();
-            } else if (status == Ship.Status.RETURN_SUCCESS) {
+            } else if (status == Ship.Status.RETURN_SUCCESS || status == Ship.Status.RETURN_FAILED) {
                 //TODO claim rewards
                 this.getPlayer().getSkillController().getSailing().collectVoyageTradeGoods(slot);
                 this.close();
-            } else if(status == Ship.Status.RETURN_FAILED) {
-                //TODO penalize
             } else {
                 this.getPlayer().sendMessage("Your ship is currently on a voyage.");
             }
         }, 150111);
         this.registerButton(actionEvent -> {
+            Ship.Status status = Ship.Status.values()[this.getPlayer().getSkillController().getSailing().getShip(slot).getStatus()];
+            if (status == Ship.Status.AVAILABLE) {
             MerchantCache.getInstance().read(50001).openShop(this.getPlayer());
+            } else {
+                this.getPlayer().sendMessage("You can only buy trade goods before setting sail.");
+            }
         }, 150112);
         this.registerButton(actionEvent -> {
-            MerchantCache.getInstance().read(50000).openShop(this.getPlayer());
+            Ship.Status status = Ship.Status.values()[this.getPlayer().getSkillController().getSailing().getShip(slot).getStatus()];
+            if (status == Ship.Status.AVAILABLE) {
+                MerchantCache.getInstance().read(50000).openShop(this.getPlayer());
+            } else {
+                this.getPlayer().sendMessage("You can only sell trade goods after returning from a voyage.");
+            }
         }, 150113);
         this.registerButton(actionEvent -> {
             selectedTradeGood = null;

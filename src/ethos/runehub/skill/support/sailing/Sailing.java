@@ -31,6 +31,7 @@ import org.runehub.api.model.entity.item.loot.LootTable;
 import org.runehub.api.model.entity.item.loot.LootTableContainer;
 import org.runehub.api.model.math.impl.IntegerRange;
 import org.runehub.api.util.IDManager;
+import org.slf4j.Logger;
 
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -41,6 +42,8 @@ public class Sailing extends SupportSkill {
     public static final double BASE_KNOTS_PER_HOUR = 7.3D;
     public static final int BASE_HOURS_SAILED_PER_DAY = 12;
     public static final double BASE_KNOTS_PER_MS = BASE_KNOTS_PER_HOUR / 3600000;
+
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(Sailing.class);
 
     public static void sendTestUI(Player player) {
 //        player.getSkillController().getSailing().generateDailyVoyages();
@@ -240,12 +243,15 @@ public class Sailing extends SupportSkill {
     }
 
     private void transferSellingCargoToStockpile(int slot, int vIndex) {
+        logger.debug("Transferring selling cargo to stockpile for slot: {} and vIndex: {}", slot, vIndex);
         long[] items = this.getPlayer().getSailingSaveData().getSellingCargo()[slot];
         Map<Integer, TradeGood> tradeGoodMap = this.getPlayer().getSailingSaveData().getSoldTradeGoods(vIndex);
         for (int i = 0; i < items.length; i++) {
             GameItem gameItem = GameItem.decodeGameItem(items[i]);
+            logger.debug("Decoded game item: {}", gameItem);
             if (gameItem.getId() != 0) {
                 TradeGood tradeGood = tradeGoodMap.get(gameItem.getId());
+                logger.debug("Trade good: {}", tradeGood);
                 GameItem coins = new GameItem(995, tradeGood.getBasePrice() * gameItem.getAmount());
                 this.getPlayer().getSailingSaveData().setOrAddCargo(coins.encodeGameItem());
                 this.getPlayer().getSailingSaveData().setSellCargo(i, 0, slot);
