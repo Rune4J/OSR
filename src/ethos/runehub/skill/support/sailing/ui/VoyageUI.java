@@ -113,6 +113,19 @@ public class VoyageUI extends SelectionParentUI {
                                                     getPlayer().getAttributes().getActiveDialogSequence().next();
                                                 }
                                             },
+                                            new DialogOption("Use Bottled wind to send my ship home instantly") {
+                                                @Override
+                                                public void onAction() {
+                                                    if (getPlayer().getItems().playerHasItem(6953,1)) {
+                                                        getPlayer().getItems().deleteItem2(6953,1);
+                                                        Server.getEventHandler().stop("voyage_ship-" + slot +"-" + getPlayer().getId());
+                                                        SailingController.getInstance().completeVoyage(slot,getPlayer().getContext().getId());
+                                                    } else {
+                                                        getPlayer().sendMessage("You do not have any bottled wind");
+                                                    }
+                                                    getPlayer().getAttributes().getActiveDialogSequence().next();
+                                                }
+                                            },
                                             new DialogOption("Nevermind") {
                                                 @Override
                                                 public void onAction() {
