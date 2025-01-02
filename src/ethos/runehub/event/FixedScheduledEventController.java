@@ -1,6 +1,8 @@
 package ethos.runehub.event;
 
 import ethos.runehub.event.dnd.*;
+import ethos.runehub.event.holiday.EndChristmasFixedScheduleEvent;
+import ethos.runehub.event.holiday.StartChristmasFixedScheduleEvent;
 import ethos.runehub.event.shop.impl.GeneralStoreRestockEvent;
 import ethos.runehub.event.shop.impl.SpecialtyShopRestockEvent;
 import ethos.runehub.event.skill.cooking.BrewingCycleEvent;
@@ -90,7 +92,9 @@ public class FixedScheduledEventController {
 //                new HopsPatchGrowthCycleEvent(),
                 new TreePatchGrowthCycleEvent(),
                 new BushPatchGrowthCycleEvent(),
-                new BrewingCycleEvent()
+                new BrewingCycleEvent(),
+                new StartChristmasFixedScheduleEvent(),
+                new EndChristmasFixedScheduleEvent(),
         };
     }
 
