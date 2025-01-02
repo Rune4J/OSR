@@ -100,7 +100,7 @@ public class HolidayController {
 	 * Initializes all necessary information for each holiday
 	 */
 	public void initialize() {
-		HOLIDAYS.stream().filter(holiday -> holiday.isActive()).forEach(holiday -> holiday.initializeHoliday());
+//		HOLIDAYS.stream().filter(holiday -> holiday.isActive()).forEach(holiday -> holiday.initializeHoliday());
 	}
 
 }
